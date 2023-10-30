@@ -4,7 +4,10 @@ import 'package:so_flutter/so_flutter.dart';
 /// Main
 main() {
   App app = App(); // New app created.
-  app.home = _FirstScreen(); // Set the home screen.
+  // At this point, if you run this, you will get a "Hello World" screen.
+
+  app.home =
+      _FirstScreen(); // Set the home screen, instead of the default "Hello World" screen.
   app.run(); // Now, run the app.
 }
 

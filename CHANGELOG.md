@@ -7,3 +7,6 @@
 
 ## 0.0.3
 - Added more examples.
+
+## 0.0.4
+- Merged examples into a single file because multiple example files can't be published.
