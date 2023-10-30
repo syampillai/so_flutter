@@ -10,3 +10,6 @@
 
 ## 0.0.4
 - Merged examples into a single file because multiple example files can't be published.
+
+## 0.0.5
+- Documentation typos corrected.

@@ -237,7 +237,7 @@ abstract class StatelessScreen extends StatelessWidget implements Screen {
 
 /// An abstract [Screen] class developers can extend for creating
 /// [StatefulWidget]s. Please note that this is, in fact, an instance of
-/// a [State] and one needs not define a real [StatefulWidget[ instance.
+/// a [State] and one needs not define a real [StatefulWidget] instance.
 abstract class StatefulScreen extends State<_AppScreen> implements Screen {
   /// Constructor.
   StatefulScreen();

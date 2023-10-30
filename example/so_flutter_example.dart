@@ -6,14 +6,13 @@ main() {
   App app = App(); // New app created.
   // At this point, if you run this, you will get a "Hello World" screen.
 
-  app.home =
-      _FirstScreen(); // Set the home screen, instead of the default "Hello World" screen.
+  app.home = _FirstScreen(); // Set a home screen other than the default one.
   app.run(); // Now, run the app.
 }
 
-// Example of a "stateless" screen.
+/// Example of a "stateless" screen.
 class _FirstScreen extends StatelessScreen {
-  // Build method. Note: It should return a [Scaffold].
+  /// Build method. Note: It should return a [Scaffold].
   @override
   Scaffold build(BuildContext context) {
     return Scaffold(
@@ -43,7 +42,7 @@ class _FirstScreen extends StatelessScreen {
 
 /// Example of a "stateful" screen.
 class _SecondScreen extends StatefulScreen {
-  // Build method. Note: It should return a [Scaffold].
+  /// Build method. Note: It should return a [Scaffold].
   @override
   Scaffold build(BuildContext context) {
     return Scaffold(
@@ -63,7 +62,7 @@ class _SecondScreen extends StatefulScreen {
 
 /// This example just implements a [Screen].
 class _ThirdScreen implements Screen {
-  // Build method. Note: It should return a [Scaffold].
+  /// Build method. Note: It should return a [Scaffold].
   @override
   Scaffold build(BuildContext context) {
     return Scaffold(
