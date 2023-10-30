@@ -141,6 +141,7 @@ class _App extends StatefulWidget {
 
   @override
   App createState() {
+    // ignore: no_logic_in_create_state
     return app;
   }
 }
@@ -152,6 +153,7 @@ class _AppScreen extends StatefulWidget {
 
   @override
   StatefulScreen createState() {
+    // ignore: no_logic_in_create_state
     return screen;
   }
 }
