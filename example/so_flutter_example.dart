@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:so_flutter/so_flutter.dart';
 
@@ -117,7 +119,7 @@ class _ThirdScreen implements Screen {
   }
 }
 
-// Example of a [DataScreen] used for entering some data.
+/// Example of a [DataScreen] used for entering some data.
 class _DataEntry extends DataScreen {
   /// Build method. Note: It should return a [Scaffold].
   @override
@@ -127,11 +129,33 @@ class _DataEntry extends DataScreen {
       initialValue: 'Hello',
       decoration: const InputDecoration(hintText: 'Enter your name'),
       autofocus: true,
+      validator: (v) => v == null || v.isEmpty || v.length > 15
+          ? 'Invalid, please enter at least 1 character and at most 15'
+          : null,
+      autovalidateMode: AutovalidateMode.always,
     );
     // Create a date field.
     Field<DateTime> dateField = this.dateField(
       initialValue: DateTime(1998, 1, 23),
       decoration: const InputDecoration(hintText: 'Enter your date of birth'),
+      validator: (v) => v != null && v.isBefore(DateTime.now())
+          ? null
+          : 'Invalid date of birth',
+    );
+    // Create a double field.
+    Field<double> numericField1 = doubleField(
+        initialValue: 123.45,
+        decoration: const InputDecoration(
+            hintText: 'Enter some decimal number that is less that 3000'),
+        validator: (v) {
+          return v == null || v >= 3000
+              ? 'Out of range! Should be less than 3000'
+              : null;
+        });
+    // Create a int field.
+    Field<int> numericField2 = intField(
+      initialValue: 273,
+      decoration: const InputDecoration(hintText: 'Enter some integer number'),
     );
     // Now create the component tree.
     return Scaffold(
@@ -142,29 +166,64 @@ class _DataEntry extends DataScreen {
             children: [
               textField,
               dateField,
+              numericField1,
+              numericField2,
               ElevatedButton(
                 onPressed: () => {
-                  // Notice how rhe field value is accessed
-                  App.message("Text field's value is ${textField.value}"),
+                  // Notice how the field value is accessed
+                  App.message(isValid
+                      ? "Text field's value is ${textField.value}"
+                      : 'Please fix errors'),
+                  // Focusing back to the same field
                   textField.focus(),
                 },
                 child: const Text('Show Text Value'),
               ),
               ElevatedButton(
                 onPressed: () => {
-                  // Notice how rhe field value is set
+                  // Notice how the field value is set
                   textField.value = 'New Text value',
+                  // Focusing back to the same field
                   textField.focus(),
                 },
                 child: const Text('Set Text Value'),
               ),
               ElevatedButton(
                 onPressed: () => {
-                  // Notice how rhe field value is accessed
-                  App.message("Text field's value is ${dateField.value}"),
-                  textField.focus(),
+                  // Notice how the field value is accessed
+                  App.message(isValid
+                      ? "Date field's value is ${dateField.value}"
+                      : 'Please fix errors'),
+                  // Focusing back to the same field
+                  dateField.focus(),
                 },
                 child: const Text('Show Date Value'),
+              ),
+              ElevatedButton(
+                onPressed: () => {
+                  // Notice how the field value is set
+                  dateField.value = DateTime.now(),
+                  // Focusing back to the same field
+                  dateField.focus(),
+                },
+                child: const Text('Set Current Date'),
+              ),
+              ElevatedButton(
+                onPressed: () => {
+                  // Notice how the field value is accessed
+                  App.message(isValid
+                      ? "Numeric field's values are: Decimal value ${numericField1.value}, Integer value: ${numericField2.value}"
+                      : 'Please fix errors'),
+                },
+                child: const Text('Show Numeric Values'),
+              ),
+              ElevatedButton(
+                onPressed: () => {
+                  // Notice how the field value is set
+                  numericField1.value = Random().nextDouble() * 10000,
+                  numericField2.value = Random().nextInt(1000),
+                },
+                child: const Text('Set Random Numeric Value'),
               ),
             ],
           )),

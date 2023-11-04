@@ -146,11 +146,12 @@ class App extends State<_App> {
       _instance!._stateChanged(() => goTo(screen));
       return;
     }
-    Navigator.of(_context()).push(MaterialPageRoute(
+    Navigator.of(currentContext()).push(MaterialPageRoute(
         builder: (context) => get()._screen(context, screen)));
   }
 
-  static BuildContext _context() {
+  /// Get the current [BuildContext] that belongs to the currently visible [Screen].
+  static BuildContext currentContext() {
     return _navigatorKey.currentContext ?? get().context;
   }
 
@@ -203,7 +204,7 @@ class App extends State<_App> {
       snackBarAction =
           SnackBarAction(label: action.label, onPressed: action.action);
     }
-    ScaffoldMessenger.of(_context()).showSnackBar(
+    ScaffoldMessenger.of(currentContext()).showSnackBar(
       SnackBar(
         content: Text(content),
         action: snackBarAction,
@@ -228,7 +229,7 @@ class App extends State<_App> {
       }
     }
     showDialog(
-        context: _context(),
+        context: currentContext(),
         builder: (context) {
           return AlertDialog(
             title: title == null ? null : Text(title),
@@ -371,6 +372,18 @@ abstract class DataScreen extends StatefulScreen {
     super.dispose();
   }
 
+  /// Register a [TextEditingController] so that it will get disposed when this
+  /// screen is disposed.
+  void registerController(TextEditingController controller) {
+    controllers.add(controller);
+  }
+
+  /// Register a [FocusNode] so that it will get disposed when this
+  /// screen is disposed.
+  void registerFocusNode(FocusNode focusNode) {
+    focusNodes.add(focusNode);
+  }
+
   /// Check if the form data is valid.
   bool get isValid =>
       formKey.currentState == null ? false : formKey.currentState!.validate();
@@ -443,12 +456,10 @@ abstract class DataScreen extends StatefulScreen {
       Clip clipBehavior = Clip.hardEdge,
       bool scribbleEnabled = true,
       bool canRequestFocus = true}) {
-    to(String s) => s;
-    _TextEditingController<String> controller =
-        _TextEditingController(to, initialValue);
-    controllers.add(controller);
+    _TextValueController controller = _TextValueController(initialValue);
+    registerController(controller);
     FocusNode focusNode = FocusNode();
-    focusNodes.add(focusNode);
+    registerFocusNode(focusNode);
     return _CustomTextField<String>(
       key: key,
       decoration: decoration,
@@ -551,13 +562,13 @@ abstract class DataScreen extends StatefulScreen {
       bool enableSuggestions = true,
       MaxLengthEnforcement? maxLengthEnforcement,
       int? maxLength,
-      ValueChanged<String>? onChanged,
+      ValueChanged<DateTime?>? onChanged,
       GestureTapCallback? onTap,
       TapRegionCallback? onTapOutside,
       VoidCallback? onEditingComplete,
-      ValueChanged<String>? onFieldSubmitted,
-      FormFieldSetter<String>? onSaved,
-      FormFieldValidator<String>? validator,
+      ValueChanged<DateTime?>? onFieldSubmitted,
+      FormFieldSetter<DateTime?>? onSaved,
+      FormFieldValidator<DateTime?>? validator,
       List<TextInputFormatter>? inputFormatters,
       bool? enabled,
       double cursorWidth = 2.0,
@@ -593,11 +604,11 @@ abstract class DataScreen extends StatefulScreen {
     initialValue ??= DateTime.now();
     intl.DateFormat df = dateFormat ?? intl.DateFormat.yMMMd();
     toText(DateTime d) => df.format(d);
-    _TextEditingController<DateTime> controller =
-        _TextEditingController(toText, initialValue);
-    controllers.add(controller);
+    _TextReplacingController<DateTime> controller =
+        _TextReplacingController(toText, initialValue);
+    registerController(controller);
     FocusNode focusNode = FocusNode();
-    focusNodes.add(focusNode);
+    registerFocusNode(focusNode);
     minimumValue ??= DateTime.utc(
         initialValue.year - 100, initialValue.month, initialValue.day);
     maximumValue ??= DateTime.utc(
@@ -606,7 +617,7 @@ abstract class DataScreen extends StatefulScreen {
         ? null
         : () async {
             controller.fieldValue = await showDatePicker(
-                context: App._context(),
+                context: App.currentContext(),
                 initialDate: initialValue!,
                 firstDate: minimumValue!,
                 lastDate: maximumValue!);
@@ -631,14 +642,170 @@ abstract class DataScreen extends StatefulScreen {
       enableSuggestions: enableSuggestions,
       maxLengthEnforcement: maxLengthEnforcement,
       maxLength: maxLength,
-      onChanged: onChanged,
       onTap: tap,
       onTapOutside: onTapOutside,
       onEditingComplete: onEditingComplete,
-      onFieldSubmitted: onFieldSubmitted,
-      onSaved: onSaved,
-      validator: validator,
+      onFieldSubmitted: onFieldSubmitted == null
+          ? null
+          : (s) => onFieldSubmitted.call(controller.fieldValue),
+      onSaved:
+          onSaved == null ? null : (s) => onSaved.call(controller.fieldValue),
+      validator: validator == null
+          ? null
+          : (s) => validator.call(controller.fieldValue),
+      onChanged: onChanged == null
+          ? null
+          : (s) => onChanged.call(controller.fieldValue),
       inputFormatters: inputFormatters,
+      enabled: enabled,
+      cursorWidth: cursorWidth,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorColor: cursorColor,
+      keyboardAppearance: keyboardAppearance,
+      scrollPadding: scrollPadding,
+      enableInteractiveSelection: enableInteractiveSelection,
+      selectionControls: selectionControls,
+      buildCounter: buildCounter,
+      scrollPhysics: scrollPhysics,
+      autofillHints: autofillHints,
+      autovalidateMode: autovalidateMode,
+      scrollController: scrollController,
+      restorationId: restorationId,
+      enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+      mouseCursor: mouseCursor,
+      contextMenuBuilder: contextMenuBuilder,
+      spellCheckConfiguration: spellCheckConfiguration,
+      magnifierConfiguration: magnifierConfiguration,
+      undoController: undoController,
+      onAppPrivateCommand: onAppPrivateCommand,
+      cursorOpacityAnimates: cursorOpacityAnimates,
+      selectionHeightStyle: selectionHeightStyle,
+      selectionWidthStyle: selectionWidthStyle,
+      dragStartBehavior: dragStartBehavior,
+      contentInsertionConfiguration: contentInsertionConfiguration,
+      clipBehavior: clipBehavior,
+      scribbleEnabled: scribbleEnabled,
+      canRequestFocus: canRequestFocus,
+      controller: controller,
+      focusNode: focusNode,
+    );
+  }
+
+  Field<T> _numField<T extends num>(
+      {Key? key,
+      required T? Function(String? text) toValue,
+      T? initialValue,
+      InputDecoration? decoration = const InputDecoration(),
+      TextInputAction? textInputAction,
+      TextStyle? style,
+      StrutStyle? strutStyle,
+      TextDirection? textDirection,
+      TextAlign textAlign = TextAlign.start,
+      TextAlignVertical? textAlignVertical,
+      bool autofocus = false,
+      bool readOnly = false,
+      bool? showCursor,
+      SmartDashesType? smartDashesType,
+      SmartQuotesType? smartQuotesType,
+      bool enableSuggestions = true,
+      MaxLengthEnforcement? maxLengthEnforcement,
+      int? maxLength,
+      int decimals = 6,
+      bool signed = false,
+      ValueChanged<T?>? onChanged,
+      GestureTapCallback? onTap,
+      TapRegionCallback? onTapOutside,
+      VoidCallback? onEditingComplete,
+      ValueChanged<T?>? onFieldSubmitted,
+      FormFieldSetter<T?>? onSaved,
+      FormFieldValidator<T?>? validator,
+      bool? enabled,
+      double cursorWidth = 2.0,
+      double? cursorHeight,
+      Radius? cursorRadius,
+      Color? cursorColor,
+      Brightness? keyboardAppearance,
+      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+      bool? enableInteractiveSelection,
+      TextSelectionControls? selectionControls,
+      InputCounterWidgetBuilder? buildCounter,
+      ScrollPhysics? scrollPhysics,
+      Iterable<String>? autofillHints,
+      AutovalidateMode? autovalidateMode,
+      ScrollController? scrollController,
+      String? restorationId,
+      bool enableIMEPersonalizedLearning = true,
+      MouseCursor? mouseCursor,
+      EditableTextContextMenuBuilder? contextMenuBuilder =
+          _defaultContextMenuBuilder,
+      SpellCheckConfiguration? spellCheckConfiguration,
+      TextMagnifierConfiguration? magnifierConfiguration,
+      UndoHistoryController? undoController,
+      AppPrivateCommandCallback? onAppPrivateCommand,
+      bool? cursorOpacityAnimates,
+      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+      ContentInsertionConfiguration? contentInsertionConfiguration,
+      Clip clipBehavior = Clip.hardEdge,
+      bool scribbleEnabled = true,
+      bool canRequestFocus = true}) {
+    toText(T? numberValue) =>
+        numberValue == null ? '' : numberValue.toStringAsFixed(decimals);
+    _TextEditingController<T> controller =
+        _TextEditingController(toText, toValue, initialValue);
+    registerController(controller);
+    FocusNode focusNode = FocusNode();
+    registerFocusNode(focusNode);
+    String pattern = '^';
+    if (!signed) {
+      pattern += '-{0,1}';
+    }
+    pattern += r'\d*';
+    if (decimals > 0) {
+      pattern += r'\.{0,1}\d{0,';
+      pattern += '$decimals}';
+    }
+    pattern += r'$';
+    RegExp regPattern = RegExp(pattern);
+    return _CustomTextField<T>(
+      key: key,
+      decoration: decoration,
+      keyboardType: TextInputType.numberWithOptions(
+          signed: signed, decimal: decimals > 0),
+      textInputAction: textInputAction,
+      style: style,
+      strutStyle: strutStyle,
+      textDirection: textDirection,
+      textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      showCursor: showCursor,
+      smartDashesType: smartDashesType,
+      smartQuotesType: smartQuotesType,
+      enableSuggestions: enableSuggestions,
+      maxLengthEnforcement: maxLengthEnforcement,
+      maxLength: maxLength,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      onEditingComplete: onEditingComplete,
+      onFieldSubmitted: onFieldSubmitted == null
+          ? null
+          : (s) => onFieldSubmitted.call(controller.fieldValue),
+      onSaved:
+          onSaved == null ? null : (s) => onSaved.call(controller.fieldValue),
+      validator: validator == null
+          ? null
+          : (s) => validator.call(controller.fieldValue),
+      onChanged: onChanged == null
+          ? null
+          : (s) => onChanged.call(controller.fieldValue),
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) =>
+            regPattern.hasMatch(newValue.text) ? newValue : oldValue),
+      ],
       enabled: enabled,
       cursorWidth: cursorWidth,
       cursorHeight: cursorHeight,
@@ -679,83 +846,67 @@ abstract class DataScreen extends StatefulScreen {
   /// [TextFormField].
   Field<double> doubleField(
       {Key? key,
-        double? initialValue,
-        InputDecoration? decoration = const InputDecoration(),
-        TextInputAction? textInputAction,
-        TextStyle? style,
-        StrutStyle? strutStyle,
-        TextDirection? textDirection,
-        TextAlign textAlign = TextAlign.start,
-        TextAlignVertical? textAlignVertical,
-        bool autofocus = false,
-        bool readOnly = false,
-        bool? showCursor,
-        SmartDashesType? smartDashesType,
-        SmartQuotesType? smartQuotesType,
-        bool enableSuggestions = true,
-        MaxLengthEnforcement? maxLengthEnforcement,
-        int? maxLength,
-        int decimals = 6,
-        bool signed = false,
-        ValueChanged<String>? onChanged,
-        GestureTapCallback? onTap,
-        TapRegionCallback? onTapOutside,
-        VoidCallback? onEditingComplete,
-        ValueChanged<String>? onFieldSubmitted,
-        FormFieldSetter<String>? onSaved,
-        FormFieldValidator<String>? validator,
-        bool? enabled,
-        double cursorWidth = 2.0,
-        double? cursorHeight,
-        Radius? cursorRadius,
-        Color? cursorColor,
-        Brightness? keyboardAppearance,
-        EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
-        bool? enableInteractiveSelection,
-        TextSelectionControls? selectionControls,
-        InputCounterWidgetBuilder? buildCounter,
-        ScrollPhysics? scrollPhysics,
-        Iterable<String>? autofillHints,
-        AutovalidateMode? autovalidateMode,
-        ScrollController? scrollController,
-        String? restorationId,
-        bool enableIMEPersonalizedLearning = true,
-        MouseCursor? mouseCursor,
-        EditableTextContextMenuBuilder? contextMenuBuilder =
-            _defaultContextMenuBuilder,
-        SpellCheckConfiguration? spellCheckConfiguration,
-        TextMagnifierConfiguration? magnifierConfiguration,
-        UndoHistoryController? undoController,
-        AppPrivateCommandCallback? onAppPrivateCommand,
-        bool? cursorOpacityAnimates,
-        BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
-        BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
-        DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-        ContentInsertionConfiguration? contentInsertionConfiguration,
-        Clip clipBehavior = Clip.hardEdge,
-        bool scribbleEnabled = true,
-        bool canRequestFocus = true}) {
-    to(double dv) => dv.toString();
-    _TextEditingController<double> controller =
-    _TextEditingController(to, initialValue);
-    controllers.add(controller);
-    FocusNode focusNode = FocusNode();
-    focusNodes.add(focusNode);
-    String pattern = '^';
-    if(!signed) {
-      pattern += '-{0,1}';
-    }
-    pattern += r'\d*';
-    if(decimals > 0) {
-      pattern += r'\.{0,1}\d{0,';
-      pattern += '$decimals}';
-    }
-    pattern += r'$';
-    RegExp regPattern = RegExp(pattern);
-    return _CustomTextField<double>(
+      double? initialValue,
+      InputDecoration? decoration = const InputDecoration(),
+      TextInputAction? textInputAction,
+      TextStyle? style,
+      StrutStyle? strutStyle,
+      TextDirection? textDirection,
+      TextAlign textAlign = TextAlign.start,
+      TextAlignVertical? textAlignVertical,
+      bool autofocus = false,
+      bool readOnly = false,
+      bool? showCursor,
+      SmartDashesType? smartDashesType,
+      SmartQuotesType? smartQuotesType,
+      bool enableSuggestions = true,
+      MaxLengthEnforcement? maxLengthEnforcement,
+      int? maxLength,
+      int decimals = 6,
+      bool signed = false,
+      ValueChanged<double?>? onChanged,
+      GestureTapCallback? onTap,
+      TapRegionCallback? onTapOutside,
+      VoidCallback? onEditingComplete,
+      ValueChanged<double?>? onFieldSubmitted,
+      FormFieldSetter<double?>? onSaved,
+      FormFieldValidator<double?>? validator,
+      bool? enabled,
+      double cursorWidth = 2.0,
+      double? cursorHeight,
+      Radius? cursorRadius,
+      Color? cursorColor,
+      Brightness? keyboardAppearance,
+      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+      bool? enableInteractiveSelection,
+      TextSelectionControls? selectionControls,
+      InputCounterWidgetBuilder? buildCounter,
+      ScrollPhysics? scrollPhysics,
+      Iterable<String>? autofillHints,
+      AutovalidateMode? autovalidateMode,
+      ScrollController? scrollController,
+      String? restorationId,
+      bool enableIMEPersonalizedLearning = true,
+      MouseCursor? mouseCursor,
+      EditableTextContextMenuBuilder? contextMenuBuilder =
+          _defaultContextMenuBuilder,
+      SpellCheckConfiguration? spellCheckConfiguration,
+      TextMagnifierConfiguration? magnifierConfiguration,
+      UndoHistoryController? undoController,
+      AppPrivateCommandCallback? onAppPrivateCommand,
+      bool? cursorOpacityAnimates,
+      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+      ContentInsertionConfiguration? contentInsertionConfiguration,
+      Clip clipBehavior = Clip.hardEdge,
+      bool scribbleEnabled = true,
+      bool canRequestFocus = true}) {
+    return _numField<double>(
       key: key,
+      toValue: (text) => text == null ? null : double.tryParse(text),
+      initialValue: initialValue,
       decoration: decoration,
-      keyboardType: TextInputType.numberWithOptions(signed: signed, decimal: decimals > 0),
       textInputAction: textInputAction,
       style: style,
       strutStyle: strutStyle,
@@ -770,6 +921,8 @@ abstract class DataScreen extends StatefulScreen {
       enableSuggestions: enableSuggestions,
       maxLengthEnforcement: maxLengthEnforcement,
       maxLength: maxLength,
+      decimals: decimals,
+      signed: signed,
       onChanged: onChanged,
       onTap: onTap,
       onTapOutside: onTapOutside,
@@ -777,9 +930,6 @@ abstract class DataScreen extends StatefulScreen {
       onFieldSubmitted: onFieldSubmitted,
       onSaved: onSaved,
       validator: validator,
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldValue, newValue) => regPattern.hasMatch(newValue.text) ? newValue : oldValue),
-      ],
       enabled: enabled,
       cursorWidth: cursorWidth,
       cursorHeight: cursorHeight,
@@ -810,9 +960,146 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
-      controller: controller,
-      focusNode: focusNode,
     );
+  }
+
+  /// Create a  field to accept [int] values.
+  /// The parameters are exactly similar to the parameters of
+  /// [TextFormField].
+  Field<int> intField(
+      {Key? key,
+      int? initialValue,
+      InputDecoration? decoration = const InputDecoration(),
+      TextInputAction? textInputAction,
+      TextStyle? style,
+      StrutStyle? strutStyle,
+      TextDirection? textDirection,
+      TextAlign textAlign = TextAlign.start,
+      TextAlignVertical? textAlignVertical,
+      bool autofocus = false,
+      bool readOnly = false,
+      bool? showCursor,
+      SmartDashesType? smartDashesType,
+      SmartQuotesType? smartQuotesType,
+      bool enableSuggestions = true,
+      MaxLengthEnforcement? maxLengthEnforcement,
+      int? maxLength,
+      bool signed = false,
+      ValueChanged<int?>? onChanged,
+      GestureTapCallback? onTap,
+      TapRegionCallback? onTapOutside,
+      VoidCallback? onEditingComplete,
+      ValueChanged<int?>? onFieldSubmitted,
+      FormFieldSetter<int?>? onSaved,
+      FormFieldValidator<int?>? validator,
+      bool? enabled,
+      double cursorWidth = 2.0,
+      double? cursorHeight,
+      Radius? cursorRadius,
+      Color? cursorColor,
+      Brightness? keyboardAppearance,
+      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+      bool? enableInteractiveSelection,
+      TextSelectionControls? selectionControls,
+      InputCounterWidgetBuilder? buildCounter,
+      ScrollPhysics? scrollPhysics,
+      Iterable<String>? autofillHints,
+      AutovalidateMode? autovalidateMode,
+      ScrollController? scrollController,
+      String? restorationId,
+      bool enableIMEPersonalizedLearning = true,
+      MouseCursor? mouseCursor,
+      EditableTextContextMenuBuilder? contextMenuBuilder =
+          _defaultContextMenuBuilder,
+      SpellCheckConfiguration? spellCheckConfiguration,
+      TextMagnifierConfiguration? magnifierConfiguration,
+      UndoHistoryController? undoController,
+      AppPrivateCommandCallback? onAppPrivateCommand,
+      bool? cursorOpacityAnimates,
+      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+      ContentInsertionConfiguration? contentInsertionConfiguration,
+      Clip clipBehavior = Clip.hardEdge,
+      bool scribbleEnabled = true,
+      bool canRequestFocus = true}) {
+    return _numField<int>(
+      key: key,
+      toValue: (text) => text == null ? null : int.tryParse(text),
+      initialValue: initialValue,
+      decoration: decoration,
+      textInputAction: textInputAction,
+      style: style,
+      strutStyle: strutStyle,
+      textDirection: textDirection,
+      textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      showCursor: showCursor,
+      smartDashesType: smartDashesType,
+      smartQuotesType: smartQuotesType,
+      enableSuggestions: enableSuggestions,
+      maxLengthEnforcement: maxLengthEnforcement,
+      maxLength: maxLength,
+      decimals: 0,
+      signed: signed,
+      onChanged: onChanged,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      onEditingComplete: onEditingComplete,
+      onFieldSubmitted: onFieldSubmitted,
+      onSaved: onSaved,
+      validator: validator,
+      enabled: enabled,
+      cursorWidth: cursorWidth,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorColor: cursorColor,
+      keyboardAppearance: keyboardAppearance,
+      scrollPadding: scrollPadding,
+      enableInteractiveSelection: enableInteractiveSelection,
+      selectionControls: selectionControls,
+      buildCounter: buildCounter,
+      scrollPhysics: scrollPhysics,
+      autofillHints: autofillHints,
+      autovalidateMode: autovalidateMode,
+      scrollController: scrollController,
+      restorationId: restorationId,
+      enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+      mouseCursor: mouseCursor,
+      contextMenuBuilder: contextMenuBuilder,
+      spellCheckConfiguration: spellCheckConfiguration,
+      magnifierConfiguration: magnifierConfiguration,
+      undoController: undoController,
+      onAppPrivateCommand: onAppPrivateCommand,
+      cursorOpacityAnimates: cursorOpacityAnimates,
+      selectionHeightStyle: selectionHeightStyle,
+      selectionWidthStyle: selectionWidthStyle,
+      dragStartBehavior: dragStartBehavior,
+      contentInsertionConfiguration: contentInsertionConfiguration,
+      clipBehavior: clipBehavior,
+      scribbleEnabled: scribbleEnabled,
+      canRequestFocus: canRequestFocus,
+    );
+  }
+
+  Field<Set<T>> selections<T>(
+      {required List<T> items,
+      List<T>? initialSelection,
+      List<T>? disabledItems,
+      Widget Function(T item)? itemWidgetCreator,
+      Widget Function(T item)? selectedItemWidgetCreator,
+      Widget Function(T item)? disabledItemWidgetCreator,
+      Widget Function(List<Widget> children)? itemsWidgetCreator}) {
+    return _Selection(
+        items,
+        initialSelection,
+        disabledItems,
+        itemWidgetCreator,
+        selectedItemWidgetCreator,
+        disabledItemWidgetCreator,
+        itemsWidgetCreator);
   }
 }
 
@@ -828,20 +1115,82 @@ abstract class Field<T> implements Widget {
   focus();
 }
 
-class _TextEditingController<T> extends TextEditingController {
+abstract class _TextController<T> {
+  T? fieldValue;
+}
+
+class _TextValueController extends TextEditingController
+    implements _TextController<String> {
+  _TextValueController(String? initialFieldValue) {
+    text = initialFieldValue ?? '';
+  }
+
+  @override
+  String? get fieldValue => text;
+
+  @override
+  set fieldValue(String? fieldValue) {
+    text = fieldValue ?? '';
+  }
+}
+
+class _TextReplacingController<T> extends TextEditingController
+    implements _TextController<T> {
   final String Function(T value) toText;
   T? _fieldValue;
 
-  _TextEditingController(this.toText, T? initialFieldValue) {
+  _TextReplacingController(this.toText, T? initialFieldValue) {
     fieldValue = initialFieldValue;
   }
 
+  @override
   set fieldValue(T? value) {
     _fieldValue = value;
     text = value == null ? '' : toText(value);
   }
 
+  @override
   T? get fieldValue => _fieldValue;
+}
+
+class _TextEditingController<T> extends TextEditingController
+    implements _TextController<T> {
+  final String Function(T? value) toText;
+  final T? Function(String? text) toValue;
+  T? _fieldValue;
+  bool _trigger = true;
+
+  _TextEditingController(this.toText, this.toValue, T? initialFieldValue) {
+    fieldValue = initialFieldValue;
+    addListener(() {
+      _trigger = false;
+      fieldValue = toValue(text);
+      _trigger = true;
+    });
+  }
+
+  @override
+  set fieldValue(T? value) {
+    _fieldValue = value;
+    if (_trigger) {
+      _trigger = false;
+      text = value == null ? '' : toText(value);
+      _trigger = true;
+    }
+  }
+
+  @override
+  T? get fieldValue => _fieldValue;
+
+  @override
+  set text(String textValue) {
+    super.text = textValue;
+    if (_trigger) {
+      _trigger = false;
+      _fieldValue = toValue(textValue);
+      _trigger = true;
+    }
+  }
 }
 
 class _CustomTextField<T> extends TextFormField implements Field<T> {
@@ -915,15 +1264,105 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
       : _focusNode = focusNode!;
 
   @override
-  T? get value => (controller as _TextEditingController<T>).fieldValue;
+  T? get value => (controller as _TextController<T>).fieldValue;
 
   @override
-  set value(T? v) => (controller as _TextEditingController<T>).fieldValue = v;
+  set value(T? v) => (controller as _TextController<T>).fieldValue = v;
 
   @override
   focus() {
     if (enabled) {
       _focusNode.requestFocus();
     }
+  }
+}
+
+class _Selection<T> extends StatelessWidget implements Field<Set<T>> {
+  @override
+  final Set<T> value = {};
+
+  final List<T> items;
+  final List<T>? initialSelection;
+  final List<T>? disabledItems;
+  final Widget Function(T item)? itemWidgetCreator;
+  final Widget Function(T item)? selectedItemWidgetCreator;
+  final Widget Function(T item)? disabledItemWidgetCreator;
+  final Widget Function(List<Widget> children)? itemsWidgetCreator;
+
+  _Selection(
+      this.items,
+      this.initialSelection,
+      this.disabledItems,
+      this.itemWidgetCreator,
+      this.selectedItemWidgetCreator,
+      this.disabledItemWidgetCreator,
+      this.itemsWidgetCreator);
+
+  @override
+  Widget build(BuildContext context) {
+    return (itemsWidgetCreator ?? defaultWidget).call(selectionWidgets());
+  }
+
+  @override
+  focus() {}
+
+  @override
+  set value(Set<T>? value) {
+    if (value == null) {
+      this.value.clear();
+      return;
+    }
+    if (value == this.value) {
+      return;
+    }
+    this.value.clear();
+    this.value.addAll(value);
+  }
+
+  Widget defaultWidget(List<Widget> children) {
+    return ListView(
+      children: children,
+    );
+  }
+
+  List<Widget> selectionWidgets() {
+    List<Widget> widgets = [];
+
+    Widget defaultWidget(T item) {
+      return Text((item ?? 'None').toString());
+    }
+
+    Widget widget(T item, Color color) {
+      return Container(
+        margin: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(3.0),
+        decoration: BoxDecoration(border: Border.all(color: color)),
+        child: (itemWidgetCreator ?? defaultWidget).call(item),
+      );
+    }
+
+    Widget defaultSelectedWidget(T item) {
+      return widget(item, Colors.blueAccent);
+    }
+
+    Widget defaultDisabledWidget(T item) {
+      return widget(item, Colors.blueAccent);
+    }
+
+    Widget w;
+    for (T item in items) {
+      if (initialSelection != null && initialSelection!.contains(item)) {
+        w = (selectedItemWidgetCreator ?? defaultSelectedWidget).call(item);
+      } else if (disabledItems != null && disabledItems!.contains(item)) {
+        w = (disabledItemWidgetCreator ?? defaultDisabledWidget).call(item);
+      } else {
+        w = (itemWidgetCreator ?? defaultWidget).call(item);
+      }
+      widgets.add(GestureDetector(
+        child: w,
+        onTap: () => this.value.add(item),
+      ));
+    }
+    return widgets;
   }
 }
