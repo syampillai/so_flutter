@@ -26,3 +26,6 @@
 - Breaking change: Appropriate type-specific validators and related arguments are added for type-specific `Fields` such as numeric fields and date fields.
 - Because of the signature changes, your code needs to be re-complied if any such functionalities were already used.
 - Updated example code with the addition of validators in the data entry screen.
+
+## 0.2.0
+- Added new `Field` types in the `DataScreen`. See `selections(...)` and `selection(...)` methods.

@@ -20,64 +20,71 @@ class _FirstScreen extends StatelessScreen {
     return Scaffold(
       appBar: AppBar(title: const Text('Home Screen')),
       body: Center(
-          child: Column(children: [
-        ElevatedButton(
-          onPressed: () => App.goTo(_SecondScreen()), // Jump to another screen
-          child: const Text(
-            'Move to 2nd Screen',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => App.goTo(_DataEntry()), // Jump to another screen
-          child: const Text(
-            'Sample Data Entry',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => {
-            App.get().home =
-                _ThirdScreen() // 3rd screen is set as the home directly!
-          },
-          child: const Text(
-            'Change Home Screen!',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => App.message('Hello world!'),
-          child: const Text(
-            'Show a message',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => App.message('Entry deleted!',
-              MessageAction('Undo', () => App.message('Undelete successful!'))),
-          child: const Text(
-            'Show an action message',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => App.alert('Sky is going to fall now!'),
-          child: const Text(
-            'Show an alert',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => App.alert('Sky is going to fall now!', 'Alert', [
-            MessageAction('Run', () => App.message('Running')),
-            MessageAction('Ignore', () => App.message('Ignored')),
-          ]),
-          child: const Text(
-            'Show an alert with actions',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ])),
+          child: Wrap(
+              spacing: 10,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              children: [
+            ElevatedButton(
+              onPressed: () =>
+                  App.goTo(_SecondScreen()), // Jump to another screen
+              child: const Text(
+                'Move to 2nd Screen',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => App.goTo(_DataEntry()), // Jump to another screen
+              child: const Text(
+                'Sample Data Entry',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => {
+                App.get().home =
+                    _ThirdScreen() // 3rd screen is set as the home directly!
+              },
+              child: const Text(
+                'Change Home Screen!',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => App.message('Hello world!'),
+              child: const Text(
+                'Show a message',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => App.message(
+                  'Entry deleted!',
+                  MessageAction(
+                      'Undo', () => App.message('Undelete successful!'))),
+              child: const Text(
+                'Show an action message',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => App.alert('Sky is going to fall now!'),
+              child: const Text(
+                'Show an alert',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => App.alert('Sky is going to fall now!', 'Alert', [
+                MessageAction('Run', () => App.message('Running')),
+                MessageAction('Ignore', () => App.message('Ignored')),
+              ]),
+              child: const Text(
+                'Show an alert with actions',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ])),
     );
   }
 }
@@ -137,6 +144,7 @@ class _DataEntry extends DataScreen {
     // Create a date field.
     Field<DateTime> dateField = this.dateField(
       initialValue: DateTime(1998, 1, 23),
+      maxValue: DateTime.now(),
       decoration: const InputDecoration(hintText: 'Enter your date of birth'),
       validator: (v) => v != null && v.isBefore(DateTime.now())
           ? null
@@ -157,17 +165,59 @@ class _DataEntry extends DataScreen {
       initialValue: 273,
       decoration: const InputDecoration(hintText: 'Enter some integer number'),
     );
+    // Create a multi-select String field.
+    Field<Set<String>> multiSelect = selections(
+      items: [
+        'One',
+        'Two',
+        'Three',
+        'Four',
+        'Five',
+        'Six',
+        'Seven',
+        'Eight',
+        'Nine',
+        'Ten'
+      ],
+      initialSelection: {'Three', 'Four', 'Five'},
+      disabledItems: {"Three", "Seven"},
+      decoration: const InputDecoration(labelText: 'Choices'),
+    );
+    // Create a single select String field.
+    Field<String> singleSelect = selection(
+      items: [
+        'One',
+        'Two',
+        'Three',
+        'Four',
+        'Five',
+        'Six',
+        'Seven',
+        'Eight',
+        'Nine',
+        'Ten'
+      ],
+      initialValue: 'Six',
+      disabledItems: {"Three", "Seven"}, // Won't be selectable
+      decoration: const InputDecoration(labelText: 'Select One'),
+    );
     // Now create the component tree.
     return Scaffold(
       appBar: AppBar(title: const Text('Data Entry Example')),
       body: Form(
           key: formKey, // The built-in key you can use as the form-key
-          child: Column(
-            children: [
-              textField,
-              dateField,
-              numericField1,
-              numericField2,
+          child: SingleChildScrollView(
+              child: Column(children: [
+            textField,
+            dateField,
+            numericField1,
+            numericField2,
+            multiSelect,
+            singleSelect,
+            const SizedBox(
+              height: 10,
+            ),
+            Wrap(spacing: 10, alignment: WrapAlignment.center, children: [
               ElevatedButton(
                 onPressed: () => {
                   // Notice how the field value is accessed
@@ -225,8 +275,8 @@ class _DataEntry extends DataScreen {
                 },
                 child: const Text('Set Random Numeric Value'),
               ),
-            ],
-          )),
+            ]),
+          ]))),
     );
   }
 }
