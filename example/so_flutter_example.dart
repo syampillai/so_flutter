@@ -126,6 +126,8 @@ class _ThirdScreen implements Screen {
   }
 }
 
+bool x = false;
+
 /// Example of a [DataScreen] used for entering some data.
 class _DataEntry extends DataScreen {
   /// Build method. Note: It should return a [Scaffold].
@@ -134,7 +136,7 @@ class _DataEntry extends DataScreen {
     // Create a text field.
     Field<String> textField = this.textField(
       initialValue: 'Hello',
-      decoration: const InputDecoration(hintText: 'Enter your name'),
+      decoration: const InputDecoration(labelText: 'Enter your name'),
       autofocus: true,
       validator: (v) => v == null || v.isEmpty || v.length > 15
           ? 'Invalid, please enter at least 1 character and at most 15'
@@ -145,7 +147,7 @@ class _DataEntry extends DataScreen {
     Field<DateTime> dateField = this.dateField(
       initialValue: DateTime(1998, 1, 23),
       maxValue: DateTime.now(),
-      decoration: const InputDecoration(hintText: 'Enter your date of birth'),
+      decoration: const InputDecoration(labelText: 'Enter your date of birth'),
       validator: (v) => v != null && v.isBefore(DateTime.now())
           ? null
           : 'Invalid date of birth',
@@ -154,7 +156,7 @@ class _DataEntry extends DataScreen {
     Field<double> numericField1 = doubleField(
         initialValue: 123.45,
         decoration: const InputDecoration(
-            hintText: 'Enter some decimal number that is less that 3000'),
+            labelText: 'Enter some decimal number that is less that 3000'),
         validator: (v) {
           return v == null || v >= 3000
               ? 'Out of range! Should be less than 3000'
@@ -163,10 +165,10 @@ class _DataEntry extends DataScreen {
     // Create a int field.
     Field<int> numericField2 = intField(
       initialValue: 273,
-      decoration: const InputDecoration(hintText: 'Enter some integer number'),
+      decoration: const InputDecoration(labelText: 'Enter some integer number'),
     );
     // Create a multi-select String field.
-    Field<Set<String>> multiSelect = selections(
+    Field<Set<String>> multiSelect = selectionsField(
       items: [
         'One',
         'Two',
@@ -182,9 +184,10 @@ class _DataEntry extends DataScreen {
       initialSelection: {'Three', 'Four', 'Five'},
       disabledItems: {"Three", "Seven"},
       decoration: const InputDecoration(labelText: 'Choices'),
+      readOnly: true,
     );
     // Create a single select String field.
-    Field<String> singleSelect = selection(
+    Field<String> singleSelect = selectionField(
       items: [
         'One',
         'Two',
@@ -214,6 +217,15 @@ class _DataEntry extends DataScreen {
             numericField2,
             multiSelect,
             singleSelect,
+            checkboxField(
+              decoration:
+                  const InputDecoration(labelText: 'Terms & Conditions'),
+              validator: (v) =>
+                  (v != null && v) ? null : 'Please agree to the T&C',
+            ), // A Checkbox field
+            switchField(
+                decoration: const InputDecoration(
+                    labelText: 'Same like a Checkbox Field')),
             const SizedBox(
               height: 10,
             ),

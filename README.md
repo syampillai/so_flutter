@@ -25,3 +25,4 @@ main() {
   App().run();
 }
 ```
+Please see the [https://pub.dev/packages/so_flutter/example](example) page for more details.

@@ -335,17 +335,6 @@ abstract class StatelessScreen extends StatelessWidget implements Screen {
 abstract class StatefulScreen extends State<_AppScreen> implements Screen {
   /// Constructor.
   StatefulScreen();
-
-  /// Repaint the screen if required.
-  /// Developers may typically invoke this when they feel that they changed
-  /// some state data and the changes need to be reflected on the UI. Most, UI
-  /// component based changes will automatically get painted with out
-  /// invoking this method.
-  repaint() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
 }
 
 /// A screen used for data entry. The [Form] to be constructed for data entry
@@ -612,11 +601,14 @@ abstract class DataScreen extends StatefulScreen {
     var tap = readOnly
         ? null
         : () async {
-            controller.fieldValue = await showDatePicker(
+            var v = await showDatePicker(
                 context: context,
                 initialDate: controller.fieldValue ?? initialValue!,
                 firstDate: minValue!,
                 lastDate: maxValue!);
+            if (v != null) {
+              controller.fieldValue = v;
+            }
           };
     return _replacingTextField<DateTime>(
       key: key,
@@ -1084,6 +1076,128 @@ abstract class DataScreen extends StatefulScreen {
     );
   }
 
+  /// Create a  field to accept [num] values.
+  /// The parameters are exactly similar to the parameters of
+  /// [TextFormField].
+  Field<num> numField(
+      {Key? key,
+      double? initialValue,
+      InputDecoration? decoration = const InputDecoration(),
+      TextInputAction? textInputAction,
+      TextStyle? style,
+      StrutStyle? strutStyle,
+      TextDirection? textDirection,
+      TextAlign textAlign = TextAlign.start,
+      TextAlignVertical? textAlignVertical,
+      bool autofocus = false,
+      bool readOnly = false,
+      bool? showCursor,
+      SmartDashesType? smartDashesType,
+      SmartQuotesType? smartQuotesType,
+      bool enableSuggestions = true,
+      MaxLengthEnforcement? maxLengthEnforcement,
+      int? maxLength,
+      int decimals = 6,
+      bool signed = false,
+      ValueChanged<num?>? onChanged,
+      GestureTapCallback? onTap,
+      TapRegionCallback? onTapOutside,
+      VoidCallback? onEditingComplete,
+      ValueChanged<num?>? onFieldSubmitted,
+      FormFieldSetter<num?>? onSaved,
+      FormFieldValidator<num?>? validator,
+      bool? enabled,
+      double cursorWidth = 2.0,
+      double? cursorHeight,
+      Radius? cursorRadius,
+      Color? cursorColor,
+      Brightness? keyboardAppearance,
+      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+      bool? enableInteractiveSelection,
+      TextSelectionControls? selectionControls,
+      InputCounterWidgetBuilder? buildCounter,
+      ScrollPhysics? scrollPhysics,
+      Iterable<String>? autofillHints,
+      AutovalidateMode? autovalidateMode,
+      ScrollController? scrollController,
+      String? restorationId,
+      bool enableIMEPersonalizedLearning = true,
+      MouseCursor? mouseCursor,
+      EditableTextContextMenuBuilder? contextMenuBuilder =
+          _defaultContextMenuBuilder,
+      SpellCheckConfiguration? spellCheckConfiguration,
+      TextMagnifierConfiguration? magnifierConfiguration,
+      UndoHistoryController? undoController,
+      AppPrivateCommandCallback? onAppPrivateCommand,
+      bool? cursorOpacityAnimates,
+      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+      ContentInsertionConfiguration? contentInsertionConfiguration,
+      Clip clipBehavior = Clip.hardEdge,
+      bool scribbleEnabled = true,
+      bool canRequestFocus = true}) {
+    return _numField<num>(
+      key: key,
+      toValue: (text) => text == null ? null : double.tryParse(text),
+      initialValue: initialValue,
+      decoration: decoration,
+      textInputAction: textInputAction,
+      style: style,
+      strutStyle: strutStyle,
+      textDirection: textDirection,
+      textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      showCursor: showCursor,
+      smartDashesType: smartDashesType,
+      smartQuotesType: smartQuotesType,
+      enableSuggestions: enableSuggestions,
+      maxLengthEnforcement: maxLengthEnforcement,
+      maxLength: maxLength,
+      decimals: decimals,
+      signed: signed,
+      onChanged: onChanged,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      onEditingComplete: onEditingComplete,
+      onFieldSubmitted: onFieldSubmitted,
+      onSaved: onSaved,
+      validator: validator,
+      enabled: enabled,
+      cursorWidth: cursorWidth,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorColor: cursorColor,
+      keyboardAppearance: keyboardAppearance,
+      scrollPadding: scrollPadding,
+      enableInteractiveSelection: enableInteractiveSelection,
+      selectionControls: selectionControls,
+      buildCounter: buildCounter,
+      scrollPhysics: scrollPhysics,
+      autofillHints: autofillHints,
+      autovalidateMode: autovalidateMode,
+      scrollController: scrollController,
+      restorationId: restorationId,
+      enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+      mouseCursor: mouseCursor,
+      contextMenuBuilder: contextMenuBuilder,
+      spellCheckConfiguration: spellCheckConfiguration,
+      magnifierConfiguration: magnifierConfiguration,
+      undoController: undoController,
+      onAppPrivateCommand: onAppPrivateCommand,
+      cursorOpacityAnimates: cursorOpacityAnimates,
+      selectionHeightStyle: selectionHeightStyle,
+      selectionWidthStyle: selectionWidthStyle,
+      dragStartBehavior: dragStartBehavior,
+      contentInsertionConfiguration: contentInsertionConfiguration,
+      clipBehavior: clipBehavior,
+      scribbleEnabled: scribbleEnabled,
+      canRequestFocus: canRequestFocus,
+    );
+  }
+
   /// Create a  field to accept [int] values.
   /// The parameters are exactly similar to the parameters of
   /// [TextFormField].
@@ -1213,7 +1327,7 @@ abstract class DataScreen extends StatefulScreen {
   /// Also, if the [itemsWidgetCreator] parameter is specified, it will be used to layout the children widgets (widgets of the items).
   /// Most of the parameters are exactly similar to the parameters of
   /// [TextFormField].
-  Field<Set<T>> selections<T>(
+  Field<Set<T>> selectionsField<T>(
       {Key? key,
       required List<T> items,
       Set<T>? initialSelection,
@@ -1288,16 +1402,14 @@ abstract class DataScreen extends StatefulScreen {
     if (decoration != null || decoration?.labelText != null) {
       labelText = decoration?.labelText;
     }
-    var tap = readOnly
-        ? null
-        : () => App.goTo(_MultiSelection(
-            items,
-            disabledItems,
-            itemWidgetCreator,
-            itemsWidgetCreator,
-            controller,
-            labelText ?? 'Select',
-            toText!));
+    tap() => App.goTo(_MultiSelection(
+        items,
+        readOnly ? {...items} : disabledItems,
+        itemWidgetCreator,
+        itemsWidgetCreator,
+        controller,
+        labelText ?? 'Select',
+        toText!));
     return _replacingTextField<Set<T>>(
       key: key,
       controller: controller,
@@ -1368,7 +1480,7 @@ abstract class DataScreen extends StatefulScreen {
   /// Also, if the [itemsWidgetCreator] parameter is specified, it will be used to layout the children widgets (widgets of the items).
   /// Most of the parameters are exactly similar to the parameters of
   /// [TextFormField].
-  Field<T> selection<T>(
+  Field<T> selectionField<T>(
       {Key? key,
       required List<T> items,
       T? initialValue,
@@ -1441,16 +1553,14 @@ abstract class DataScreen extends StatefulScreen {
     if (decoration != null || decoration?.labelText != null) {
       labelText = decoration?.labelText;
     }
-    var tap = readOnly
-        ? null
-        : () => App.goTo(_SingleSelection(
-            items,
-            disabledItems,
-            itemWidgetCreator,
-            itemsWidgetCreator,
-            controller,
-            labelText ?? 'Select',
-            toText!));
+    tap() => App.goTo(_SingleSelection(
+        items,
+        readOnly ? {...items} : disabledItems,
+        itemWidgetCreator,
+        itemsWidgetCreator,
+        controller,
+        labelText ?? 'Select',
+        toText!));
     return _replacingTextField<T>(
       key: key,
       controller: controller,
@@ -1510,6 +1620,92 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
+    );
+  }
+
+  /// Create a [Checkbox] based field to accept [bool] values.
+  /// The parameters match the parameters of the [Checkbox].
+  Field<bool> checkboxField(
+      {Key? key,
+      bool? value = false,
+      bool tristate = false,
+      ValueChanged<bool?>? onChanged,
+      FormFieldSetter<bool?>? onSaved,
+      FormFieldValidator<bool?>? validator,
+      MouseCursor? mouseCursor,
+      Color? activeColor,
+      MaterialStateProperty<Color?>? fillColor,
+      Color? checkColor,
+      Color? focusColor,
+      Color? hoverColor,
+      MaterialStateProperty<Color?>? overlayColor,
+      double? splashRadius,
+      MaterialTapTargetSize? materialTapTargetSize,
+      VisualDensity? visualDensity,
+      OutlinedBorder? shape,
+      BorderSide? side,
+      String? semanticLabel,
+      InputDecoration? decoration}) {
+    return _BoolWidget(
+      key: key,
+      value: value,
+      tristate: tristate,
+      onChanged: onChanged,
+      onSaved: onSaved,
+      validator: validator,
+      mouseCursor: mouseCursor,
+      activeColor: activeColor,
+      fillColor: fillColor,
+      checkColor: checkColor,
+      focusColor: focusColor,
+      hoverColor: hoverColor,
+      overlayColor: overlayColor,
+      splashRadius: splashRadius,
+      materialTapTargetSize: materialTapTargetSize,
+      visualDensity: visualDensity,
+      shape: shape,
+      side: side,
+      semanticLabel: semanticLabel,
+      decoration: decoration,
+    );
+  }
+
+  /// Create a [Switch] based field to accept [bool] values.
+  /// The parameters match the parameters of the [Switch].
+  Field<bool> switchField(
+      {Key? key,
+      bool value = false,
+      ValueChanged<bool?>? onChanged,
+      FormFieldSetter<bool?>? onSaved,
+      FormFieldValidator<bool?>? validator,
+      MouseCursor? mouseCursor,
+      Color? activeColor,
+      MaterialStateProperty<Color?>? fillColor,
+      Color? checkColor,
+      Color? focusColor,
+      Color? hoverColor,
+      MaterialStateProperty<Color?>? overlayColor,
+      double? splashRadius,
+      MaterialTapTargetSize? materialTapTargetSize,
+      InputDecoration? decoration}) {
+    return _BoolWidget(
+      key: key,
+      value: value,
+      onChanged: onChanged,
+      onSaved: onSaved,
+      validator: validator,
+      mouseCursor: mouseCursor,
+      activeColor: activeColor,
+      fillColor: fillColor,
+      checkColor: checkColor,
+      focusColor: focusColor,
+      hoverColor: hoverColor,
+      overlayColor: overlayColor,
+      splashRadius: splashRadius,
+      materialTapTargetSize: materialTapTargetSize,
+      decoration: decoration,
+      checkBox: false,
+      tristate: false,
     );
   }
 }
@@ -1765,50 +1961,52 @@ class _MultiSelection<T> extends _BasicSelection<T, Set<T>> {
   @override
   List<Widget>? actions() {
     return [
-      TextButton(
-          onPressed: () {
-            Set<T> v = {...items};
-            if (!(disabledItems == null || disabledItems!.isEmpty)) {
-              Set<T>? selected = controller.fieldValue;
-              if (selected != null && selected.isNotEmpty) {
-                for (T i in disabledItems!) {
-                  if (!selected.contains(i)) {
-                    v.remove(i);
+      if (disabledItems != null && (disabledItems!.length != items.length))
+        TextButton(
+            onPressed: () {
+              Set<T> v = {...items};
+              if (!(disabledItems == null || disabledItems!.isEmpty)) {
+                Set<T>? selected = controller.fieldValue;
+                if (selected != null && selected.isNotEmpty) {
+                  for (T i in disabledItems!) {
+                    if (!selected.contains(i)) {
+                      v.remove(i);
+                    }
                   }
-                }
-              } else {
-                v.removeWhere((i) => disabledItems!.contains(i));
-              }
-            }
-            setState(() {
-              controller.fieldValue = v;
-            });
-          },
-          child: const Text(
-            'Select All',
-            style: TextStyle(color: Colors.white),
-          )),
-      TextButton(
-          onPressed: () {
-            Set<T> v = {};
-            if (!(disabledItems == null || disabledItems!.isEmpty)) {
-              Set<T>? selected = controller.fieldValue;
-              if (selected != null && selected.isNotEmpty) {
-                for (T i in selected) {
-                  if (disabledItems!.contains(i)) {
-                    v.add(i);
-                  }
+                } else {
+                  v.removeWhere((i) => disabledItems!.contains(i));
                 }
               }
-            }
-            setState(() {
-              controller.fieldValue = v;
-            });
-          },
-          child: const Text(
-            'Clear',
-            style: TextStyle(color: Colors.white),
-          )),
+              setState(() {
+                controller.fieldValue = v;
+              });
+            },
+            child: const Text(
+              'Select All',
+              style: TextStyle(color: Colors.white),
+            )),
+      if (disabledItems != null && (disabledItems!.length != items.length))
+        TextButton(
+            onPressed: () {
+              Set<T> v = {};
+              if (!(disabledItems == null || disabledItems!.isEmpty)) {
+                Set<T>? selected = controller.fieldValue;
+                if (selected != null && selected.isNotEmpty) {
+                  for (T i in selected) {
+                    if (disabledItems!.contains(i)) {
+                      v.add(i);
+                    }
+                  }
+                }
+              }
+              setState(() {
+                controller.fieldValue = v;
+              });
+            },
+            child: const Text(
+              'Clear',
+              style: TextStyle(color: Colors.white),
+            )),
     ];
   }
 
@@ -1922,5 +2120,157 @@ class _ItemState<T, V> extends State<_ItemWidget<T, V>> {
   void tap() {
     widget.onTap.call();
     setState(() {});
+  }
+}
+
+class _BoxedBool {
+  bool? value;
+  _BoolState? state;
+  _BoxedBool();
+}
+
+class _BoolWidget extends StatefulWidget implements Field<bool> {
+  final bool checkBox;
+  final _BoxedBool valueBox = _BoxedBool();
+  final bool tristate;
+  final ValueChanged<bool?>? onChanged;
+  final FormFieldSetter<bool?>? onSaved;
+  final FormFieldValidator<bool?>? validator;
+  final MouseCursor? mouseCursor;
+  final Color? activeColor;
+  final MaterialStateProperty<Color?>? fillColor;
+  final Color? checkColor;
+  final Color? focusColor;
+  final Color? hoverColor;
+  final MaterialStateProperty<Color?>? overlayColor;
+  final double? splashRadius;
+  final MaterialTapTargetSize? materialTapTargetSize;
+  final VisualDensity? visualDensity;
+  final bool autofocus = false;
+  final OutlinedBorder? shape;
+  final BorderSide? side;
+  final bool isError = false;
+  final String? semanticLabel;
+  final InputDecoration? decoration;
+
+  _BoolWidget(
+      {super.key,
+      required value,
+      required this.tristate,
+      this.onChanged,
+      this.onSaved,
+      this.validator,
+      this.mouseCursor,
+      this.activeColor,
+      this.fillColor,
+      this.checkColor,
+      this.focusColor,
+      this.hoverColor,
+      this.overlayColor,
+      this.splashRadius,
+      this.materialTapTargetSize,
+      this.visualDensity,
+      this.shape,
+      this.side,
+      this.semanticLabel,
+      this.decoration,
+      this.checkBox = true}) {
+    valueBox.value = value;
+  }
+
+  @override
+  _BoolState createState() {
+    // ignore: no_logic_in_create_state
+    return _createState();
+  }
+
+  _BoolState _createState() {
+    valueBox.state = _BoolState(checkBox);
+    return valueBox.state!;
+  }
+
+  @override
+  focus() {}
+
+  @override
+  set value(bool? value) {
+    if (value != valueBox.value) {
+      valueBox.value = value;
+      onChanged?.call(value);
+      valueBox.state?.changed();
+    }
+  }
+
+  @override
+  bool? get value => valueBox.value;
+}
+
+class _BoolState extends State<_BoolWidget> {
+  final bool checkBox;
+
+  _BoolState(this.checkBox);
+
+  void changed() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget prefix = checkBox
+        ? Checkbox(
+            value: widget.value,
+            tristate: widget.tristate,
+            onChanged: (v) {
+              widget.onChanged?.call(v);
+              widget.value = v;
+            },
+            mouseCursor: widget.mouseCursor,
+            activeColor: widget.activeColor,
+            fillColor: widget.fillColor,
+            checkColor: widget.checkColor,
+            focusColor: widget.focusColor,
+            hoverColor: widget.hoverColor,
+            overlayColor: widget.overlayColor,
+            splashRadius: widget.splashRadius,
+            materialTapTargetSize: widget.materialTapTargetSize,
+            visualDensity: widget.visualDensity,
+            shape: widget.shape,
+            side: widget.side,
+            semanticLabel: widget.semanticLabel)
+        : Switch(
+            value: widget.value!,
+            onChanged: (v) {
+              widget.onChanged?.call(v);
+              widget.value = v;
+            },
+            mouseCursor: widget.mouseCursor,
+            activeColor: widget.activeColor,
+            focusColor: widget.focusColor,
+            hoverColor: widget.hoverColor,
+            overlayColor: widget.overlayColor,
+            splashRadius: widget.splashRadius,
+            materialTapTargetSize: widget.materialTapTargetSize,
+          );
+    InputDecoration id;
+    if (widget.decoration == null) {
+      id = InputDecoration(prefix: prefix);
+    } else {
+      id = widget.decoration!.copyWith(prefix: prefix);
+    }
+    return TextFormField(
+      initialValue: ' ',
+      decoration: id,
+      readOnly: true,
+      onSaved: widget.onSaved == null
+          ? null
+          : (v) {
+              widget.onSaved!.call(widget.valueBox.value);
+            },
+      validator: widget.validator == null
+          ? null
+          : (v) {
+              return widget.validator!.call(widget.valueBox.value);
+            },
+    );
   }
 }

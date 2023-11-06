@@ -29,3 +29,7 @@
 
 ## 0.2.0
 - Added new `Field` types in the `DataScreen`. See `selections(...)` and `selection(...)` methods.
+
+## 0.3.0
+- Breaking change: Renamed `DataScreen` methods `selections(...)` and `selection(...)` to `selectionsField(...)` and `selectionField(...)` respectively for consistency.
+- Added new `Field` types in the `DataScreen` for accepting `bool` values. See `checkboxField(...)` and `switchField(...)` methods.
