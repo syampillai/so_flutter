@@ -167,39 +167,28 @@ class _DataEntry extends DataScreen {
       initialValue: 273,
       decoration: const InputDecoration(labelText: 'Enter some integer number'),
     );
+    List<String> selectionList = [
+      'One',
+      'Two',
+      'Three',
+      'Four',
+      'Five',
+      'Six',
+      'Seven',
+      'Eight',
+      'Nine',
+      'Ten'
+    ];
     // Create a multi-select String field.
     Field<Set<String>> multiSelect = selectionsField(
-      items: [
-        'One',
-        'Two',
-        'Three',
-        'Four',
-        'Five',
-        'Six',
-        'Seven',
-        'Eight',
-        'Nine',
-        'Ten'
-      ],
+      items: selectionList,
       initialSelection: {'Three', 'Four', 'Five'},
       disabledItems: {"Three", "Seven"},
       decoration: const InputDecoration(labelText: 'Choices'),
-      readOnly: true,
     );
     // Create a single select String field.
     Field<String> singleSelect = selectionField(
-      items: [
-        'One',
-        'Two',
-        'Three',
-        'Four',
-        'Five',
-        'Six',
-        'Seven',
-        'Eight',
-        'Nine',
-        'Ten'
-      ],
+      items: selectionList,
       initialValue: 'Six',
       disabledItems: {"Three", "Seven"}, // Won't be selectable
       decoration: const InputDecoration(labelText: 'Select One'),
@@ -215,6 +204,16 @@ class _DataEntry extends DataScreen {
             dateField,
             numericField1,
             numericField2,
+            comboField<String>(
+                items: selectionList,
+                initialValue: 'Three',
+                decoration: const InputDecoration(labelText: 'A combo field'),
+                disabledItems: {'Five'}),
+            choiceField(
+                items: selectionList,
+                initialValue: 2,
+                decoration: const InputDecoration(labelText: 'A choice field'),
+                disabledItems: {3}),
             multiSelect,
             singleSelect,
             checkboxField(
