@@ -38,3 +38,7 @@
 - New types of `Field` added. Check the new `DataScreen` methods: `comboField(...)`, `choiceField(...)`.
 - Code refactored into multiple part files.
 - Minor bug fixes.
+
+## 0.3.2
+- New type of field added to handle monetary values. Check the new `DataScreen` method `moneyField(...)`.
+- More formatting support added for numeric fields.

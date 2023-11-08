@@ -33,6 +33,7 @@ class FieldValue<T> {
 
 abstract class _TextController<T> {
   T? fieldValue;
+  set hasFocus(bool has);
 }
 
 class _TextValueController extends TextEditingController
@@ -48,6 +49,9 @@ class _TextValueController extends TextEditingController
   set fieldValue(String? fieldValue) {
     text = fieldValue ?? '';
   }
+
+  @override
+  set hasFocus(bool has) => {};
 }
 
 class _TextReplacingController<T> extends TextEditingController
@@ -67,16 +71,22 @@ class _TextReplacingController<T> extends TextEditingController
 
   @override
   T? get fieldValue => _fieldValue;
+
+  @override
+  set hasFocus(bool has) => {};
 }
 
 class _TextEditingController<T> extends TextEditingController
     implements _TextController<T> {
   final String Function(T? value) toText;
   final T? Function(String? text) toValue;
+  final String Function(T? value)? toFormattedText;
   T? _fieldValue;
   bool _trigger = true;
+  bool _hasFocus = false;
 
-  _TextEditingController(this.toText, this.toValue, T? initialFieldValue) {
+  _TextEditingController(
+      this.toText, this.toValue, T? initialFieldValue, this.toFormattedText) {
     fieldValue = initialFieldValue;
     addListener(() {
       _trigger = false;
@@ -90,7 +100,11 @@ class _TextEditingController<T> extends TextEditingController
     _fieldValue = value;
     if (_trigger) {
       _trigger = false;
-      text = value == null ? '' : toText(value);
+      text = value == null
+          ? ''
+          : (_hasFocus || toFormattedText == null
+              ? toText(value)
+              : toFormattedText!(value));
       _trigger = true;
     }
   }
@@ -105,6 +119,15 @@ class _TextEditingController<T> extends TextEditingController
       _trigger = false;
       _fieldValue = toValue(textValue);
       _trigger = true;
+    }
+  }
+
+  @override
+  set hasFocus(bool has) {
+    if (has != _hasFocus && toFormattedText != null && _fieldValue != null) {
+      _hasFocus = has;
+      _trigger = false;
+      text = has ? toText(_fieldValue) : toFormattedText!(_fieldValue);
     }
   }
 }
@@ -177,7 +200,11 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
       super.canRequestFocus,
       super.controller,
       super.focusNode})
-      : _focusNode = focusNode!;
+      : _focusNode = focusNode! {
+    _focusNode.addListener(() {
+      (controller as _TextController<T>).hasFocus = _focusNode.hasFocus;
+    });
+  }
 
   @override
   T? get value => (controller as _TextController<T>).fieldValue;

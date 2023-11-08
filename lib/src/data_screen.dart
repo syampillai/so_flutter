@@ -468,69 +468,128 @@ abstract class DataScreen extends StatefulScreen {
     );
   }
 
-  Field<T> _numField<T extends num>(
-      {Key? key,
-      required T? Function(String? text) toValue,
-      T? initialValue,
-      InputDecoration? decoration = const InputDecoration(),
-      TextInputAction? textInputAction,
-      TextStyle? style,
-      StrutStyle? strutStyle,
-      TextDirection? textDirection,
-      TextAlign textAlign = TextAlign.start,
-      TextAlignVertical? textAlignVertical,
-      bool autofocus = false,
-      bool readOnly = false,
-      bool? showCursor,
-      SmartDashesType? smartDashesType,
-      SmartQuotesType? smartQuotesType,
-      bool enableSuggestions = true,
-      MaxLengthEnforcement? maxLengthEnforcement,
-      int? maxLength,
-      int decimals = 6,
-      bool signed = false,
-      ValueChanged<T?>? onChanged,
-      GestureTapCallback? onTap,
-      TapRegionCallback? onTapOutside,
-      VoidCallback? onEditingComplete,
-      ValueChanged<T?>? onFieldSubmitted,
-      FormFieldSetter<T?>? onSaved,
-      FormFieldValidator<T?>? validator,
-      bool? enabled,
-      double cursorWidth = 2.0,
-      double? cursorHeight,
-      Radius? cursorRadius,
-      Color? cursorColor,
-      Brightness? keyboardAppearance,
-      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
-      bool? enableInteractiveSelection,
-      TextSelectionControls? selectionControls,
-      InputCounterWidgetBuilder? buildCounter,
-      ScrollPhysics? scrollPhysics,
-      Iterable<String>? autofillHints,
-      AutovalidateMode? autovalidateMode,
-      ScrollController? scrollController,
-      String? restorationId,
-      bool enableIMEPersonalizedLearning = true,
-      MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
-      SpellCheckConfiguration? spellCheckConfiguration,
-      TextMagnifierConfiguration? magnifierConfiguration,
-      UndoHistoryController? undoController,
-      AppPrivateCommandCallback? onAppPrivateCommand,
-      bool? cursorOpacityAnimates,
-      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
-      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
-      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-      ContentInsertionConfiguration? contentInsertionConfiguration,
-      Clip clipBehavior = Clip.hardEdge,
-      bool scribbleEnabled = true,
-      bool canRequestFocus = true}) {
-    toText(T? numberValue) =>
+  static double? _toDouble(String text) =>
+      double.tryParse(text.replaceAll(',', ''));
+
+  static num? _toNum(String text) => num.tryParse(text.replaceAll(',', ''));
+
+  static int? _toInt(String text) => int.tryParse(text.replaceAll(',', ''));
+
+  static Money? _toMoney(String text, Currency currency) {
+    if (text == '') {
+      return Money.of(0, currency);
+    }
+    RegExp digitPattern = RegExp(r"^\d");
+    while (!digitPattern.hasMatch(text)) {
+      text = text.substring(1);
+      if (text == '') {
+        return Money.of(0, currency);
+      }
+    }
+    num? v = _toNum(text);
+    return Money.of(v ?? 0, currency);
+  }
+
+  Field<T> _numField<T extends num>({
+    Key? key,
+    required T? Function(String? text) toValue,
+    T? initialValue,
+    InputDecoration? decoration = const InputDecoration(),
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextDirection? textDirection,
+    TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    bool autofocus = false,
+    bool readOnly = false,
+    bool? showCursor,
+    SmartDashesType? smartDashesType,
+    SmartQuotesType? smartQuotesType,
+    bool enableSuggestions = true,
+    MaxLengthEnforcement? maxLengthEnforcement,
+    int? maxLength,
+    int decimals = 6,
+    bool signed = false,
+    ValueChanged<T?>? onChanged,
+    GestureTapCallback? onTap,
+    TapRegionCallback? onTapOutside,
+    VoidCallback? onEditingComplete,
+    ValueChanged<T?>? onFieldSubmitted,
+    FormFieldSetter<T?>? onSaved,
+    FormFieldValidator<T?>? validator,
+    bool? enabled,
+    double cursorWidth = 2.0,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    Color? cursorColor,
+    Brightness? keyboardAppearance,
+    EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+    bool? enableInteractiveSelection,
+    TextSelectionControls? selectionControls,
+    InputCounterWidgetBuilder? buildCounter,
+    ScrollPhysics? scrollPhysics,
+    Iterable<String>? autofillHints,
+    AutovalidateMode? autovalidateMode,
+    ScrollController? scrollController,
+    String? restorationId,
+    bool enableIMEPersonalizedLearning = true,
+    MouseCursor? mouseCursor,
+    EditableTextContextMenuBuilder? contextMenuBuilder =
+        _defaultContextMenuBuilder,
+    SpellCheckConfiguration? spellCheckConfiguration,
+    TextMagnifierConfiguration? magnifierConfiguration,
+    UndoHistoryController? undoController,
+    AppPrivateCommandCallback? onAppPrivateCommand,
+    bool? cursorOpacityAnimates,
+    BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+    BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ContentInsertionConfiguration? contentInsertionConfiguration,
+    Clip clipBehavior = Clip.hardEdge,
+    bool scribbleEnabled = true,
+    bool canRequestFocus = true,
+    String Function(T? numberValue)? toText,
+    String Function(T? numberValue)? toFormattedText,
+    T? minValue,
+    T? maxValue,
+  }) {
+    if (maxValue != null) {
+      String? v1(T? numValue) => numValue == null || numValue > maxValue
+          ? 'Maximum is ${_strip(maxValue)}'
+          : null;
+      if (validator != null) {
+        var v2 = validator;
+        String? v3(T? numValue) {
+          String? m = v1.call(numValue);
+          return m ?? v2.call(numValue);
+        }
+
+        validator = v3;
+      } else {
+        validator = v1;
+      }
+    }
+    if (minValue != null) {
+      String? v1(T? numValue) => numValue == null || numValue < minValue
+          ? 'Minimum is ${_strip(minValue)}'
+          : null;
+      if (validator != null) {
+        var v2 = validator;
+        String? v3(T? numValue) {
+          String? m = v1.call(numValue);
+          return m ?? v2.call(numValue);
+        }
+
+        validator = v3;
+      } else {
+        validator = v1;
+      }
+    }
+    toText ??= (numberValue) =>
         numberValue == null ? '' : numberValue.toStringAsFixed(decimals);
     _TextEditingController<T> controller =
-        _TextEditingController(toText, toValue, initialValue);
+        _TextEditingController(toText, toValue, initialValue, toFormattedText);
     registerController(controller);
     FocusNode focusNode = FocusNode();
     registerFocusNode(focusNode);
@@ -574,7 +633,7 @@ abstract class DataScreen extends StatefulScreen {
           onSaved == null ? null : (s) => onSaved.call(controller.fieldValue),
       validator: validator == null
           ? null
-          : (s) => validator.call(controller.fieldValue),
+          : (s) => validator!.call(controller.fieldValue),
       onChanged: onChanged == null
           ? null
           : (s) => onChanged.call(controller.fieldValue),
@@ -620,67 +679,72 @@ abstract class DataScreen extends StatefulScreen {
   /// Create a  field to accept [double] values.
   /// The parameters are exactly similar to the parameters of
   /// [TextFormField].
-  Field<double> doubleField(
-      {Key? key,
-      double? initialValue,
-      InputDecoration? decoration = const InputDecoration(),
-      TextInputAction? textInputAction,
-      TextStyle? style,
-      StrutStyle? strutStyle,
-      TextDirection? textDirection,
-      TextAlign textAlign = TextAlign.start,
-      TextAlignVertical? textAlignVertical,
-      bool autofocus = false,
-      bool readOnly = false,
-      bool? showCursor,
-      SmartDashesType? smartDashesType,
-      SmartQuotesType? smartQuotesType,
-      bool enableSuggestions = true,
-      MaxLengthEnforcement? maxLengthEnforcement,
-      int? maxLength,
-      int decimals = 6,
-      bool signed = false,
-      ValueChanged<double?>? onChanged,
-      GestureTapCallback? onTap,
-      TapRegionCallback? onTapOutside,
-      VoidCallback? onEditingComplete,
-      ValueChanged<double?>? onFieldSubmitted,
-      FormFieldSetter<double?>? onSaved,
-      FormFieldValidator<double?>? validator,
-      bool? enabled,
-      double cursorWidth = 2.0,
-      double? cursorHeight,
-      Radius? cursorRadius,
-      Color? cursorColor,
-      Brightness? keyboardAppearance,
-      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
-      bool? enableInteractiveSelection,
-      TextSelectionControls? selectionControls,
-      InputCounterWidgetBuilder? buildCounter,
-      ScrollPhysics? scrollPhysics,
-      Iterable<String>? autofillHints,
-      AutovalidateMode? autovalidateMode,
-      ScrollController? scrollController,
-      String? restorationId,
-      bool enableIMEPersonalizedLearning = true,
-      MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
-      SpellCheckConfiguration? spellCheckConfiguration,
-      TextMagnifierConfiguration? magnifierConfiguration,
-      UndoHistoryController? undoController,
-      AppPrivateCommandCallback? onAppPrivateCommand,
-      bool? cursorOpacityAnimates,
-      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
-      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
-      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-      ContentInsertionConfiguration? contentInsertionConfiguration,
-      Clip clipBehavior = Clip.hardEdge,
-      bool scribbleEnabled = true,
-      bool canRequestFocus = true}) {
+  Field<double> doubleField({
+    Key? key,
+    double? initialValue,
+    InputDecoration? decoration = const InputDecoration(),
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextDirection? textDirection,
+    TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    bool autofocus = false,
+    bool readOnly = false,
+    bool? showCursor,
+    SmartDashesType? smartDashesType,
+    SmartQuotesType? smartQuotesType,
+    bool enableSuggestions = true,
+    MaxLengthEnforcement? maxLengthEnforcement,
+    int? maxLength,
+    int decimals = 6,
+    bool signed = false,
+    ValueChanged<double?>? onChanged,
+    GestureTapCallback? onTap,
+    TapRegionCallback? onTapOutside,
+    VoidCallback? onEditingComplete,
+    ValueChanged<double?>? onFieldSubmitted,
+    FormFieldSetter<double?>? onSaved,
+    FormFieldValidator<double?>? validator,
+    bool? enabled,
+    double cursorWidth = 2.0,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    Color? cursorColor,
+    Brightness? keyboardAppearance,
+    EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+    bool? enableInteractiveSelection,
+    TextSelectionControls? selectionControls,
+    InputCounterWidgetBuilder? buildCounter,
+    ScrollPhysics? scrollPhysics,
+    Iterable<String>? autofillHints,
+    AutovalidateMode? autovalidateMode,
+    ScrollController? scrollController,
+    String? restorationId,
+    bool enableIMEPersonalizedLearning = true,
+    MouseCursor? mouseCursor,
+    EditableTextContextMenuBuilder? contextMenuBuilder =
+        _defaultContextMenuBuilder,
+    SpellCheckConfiguration? spellCheckConfiguration,
+    TextMagnifierConfiguration? magnifierConfiguration,
+    UndoHistoryController? undoController,
+    AppPrivateCommandCallback? onAppPrivateCommand,
+    bool? cursorOpacityAnimates,
+    BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+    BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ContentInsertionConfiguration? contentInsertionConfiguration,
+    Clip clipBehavior = Clip.hardEdge,
+    bool scribbleEnabled = true,
+    bool canRequestFocus = true,
+    double? minValue,
+    double? maxValue,
+    String Function(double? numberValue)? toText,
+    String Function(double? numberValue)? toFormattedText,
+  }) {
     return _numField<double>(
       key: key,
-      toValue: (text) => text == null ? null : double.tryParse(text),
+      toValue: (text) => text == null ? null : _toDouble(text),
       initialValue: initialValue,
       decoration: decoration,
       textInputAction: textInputAction,
@@ -736,73 +800,82 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
+      minValue: minValue,
+      maxValue: maxValue,
+      toText: toText,
+      toFormattedText: toFormattedText,
     );
   }
 
   /// Create a  field to accept [num] values.
   /// The parameters are exactly similar to the parameters of
   /// [TextFormField].
-  Field<num> numField(
-      {Key? key,
-      double? initialValue,
-      InputDecoration? decoration = const InputDecoration(),
-      TextInputAction? textInputAction,
-      TextStyle? style,
-      StrutStyle? strutStyle,
-      TextDirection? textDirection,
-      TextAlign textAlign = TextAlign.start,
-      TextAlignVertical? textAlignVertical,
-      bool autofocus = false,
-      bool readOnly = false,
-      bool? showCursor,
-      SmartDashesType? smartDashesType,
-      SmartQuotesType? smartQuotesType,
-      bool enableSuggestions = true,
-      MaxLengthEnforcement? maxLengthEnforcement,
-      int? maxLength,
-      int decimals = 6,
-      bool signed = false,
-      ValueChanged<num?>? onChanged,
-      GestureTapCallback? onTap,
-      TapRegionCallback? onTapOutside,
-      VoidCallback? onEditingComplete,
-      ValueChanged<num?>? onFieldSubmitted,
-      FormFieldSetter<num?>? onSaved,
-      FormFieldValidator<num?>? validator,
-      bool? enabled,
-      double cursorWidth = 2.0,
-      double? cursorHeight,
-      Radius? cursorRadius,
-      Color? cursorColor,
-      Brightness? keyboardAppearance,
-      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
-      bool? enableInteractiveSelection,
-      TextSelectionControls? selectionControls,
-      InputCounterWidgetBuilder? buildCounter,
-      ScrollPhysics? scrollPhysics,
-      Iterable<String>? autofillHints,
-      AutovalidateMode? autovalidateMode,
-      ScrollController? scrollController,
-      String? restorationId,
-      bool enableIMEPersonalizedLearning = true,
-      MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
-      SpellCheckConfiguration? spellCheckConfiguration,
-      TextMagnifierConfiguration? magnifierConfiguration,
-      UndoHistoryController? undoController,
-      AppPrivateCommandCallback? onAppPrivateCommand,
-      bool? cursorOpacityAnimates,
-      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
-      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
-      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-      ContentInsertionConfiguration? contentInsertionConfiguration,
-      Clip clipBehavior = Clip.hardEdge,
-      bool scribbleEnabled = true,
-      bool canRequestFocus = true}) {
+  Field<num> numField({
+    Key? key,
+    double? initialValue,
+    InputDecoration? decoration = const InputDecoration(),
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextDirection? textDirection,
+    TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    bool autofocus = false,
+    bool readOnly = false,
+    bool? showCursor,
+    SmartDashesType? smartDashesType,
+    SmartQuotesType? smartQuotesType,
+    bool enableSuggestions = true,
+    MaxLengthEnforcement? maxLengthEnforcement,
+    int? maxLength,
+    int decimals = 6,
+    bool signed = false,
+    ValueChanged<num?>? onChanged,
+    GestureTapCallback? onTap,
+    TapRegionCallback? onTapOutside,
+    VoidCallback? onEditingComplete,
+    ValueChanged<num?>? onFieldSubmitted,
+    FormFieldSetter<num?>? onSaved,
+    FormFieldValidator<num?>? validator,
+    bool? enabled,
+    double cursorWidth = 2.0,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    Color? cursorColor,
+    Brightness? keyboardAppearance,
+    EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+    bool? enableInteractiveSelection,
+    TextSelectionControls? selectionControls,
+    InputCounterWidgetBuilder? buildCounter,
+    ScrollPhysics? scrollPhysics,
+    Iterable<String>? autofillHints,
+    AutovalidateMode? autovalidateMode,
+    ScrollController? scrollController,
+    String? restorationId,
+    bool enableIMEPersonalizedLearning = true,
+    MouseCursor? mouseCursor,
+    EditableTextContextMenuBuilder? contextMenuBuilder =
+        _defaultContextMenuBuilder,
+    SpellCheckConfiguration? spellCheckConfiguration,
+    TextMagnifierConfiguration? magnifierConfiguration,
+    UndoHistoryController? undoController,
+    AppPrivateCommandCallback? onAppPrivateCommand,
+    bool? cursorOpacityAnimates,
+    BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+    BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ContentInsertionConfiguration? contentInsertionConfiguration,
+    Clip clipBehavior = Clip.hardEdge,
+    bool scribbleEnabled = true,
+    bool canRequestFocus = true,
+    num? minValue,
+    num? maxValue,
+    String Function(num? numberValue)? toText,
+    String Function(num? numberValue)? toFormattedText,
+  }) {
     return _numField<num>(
       key: key,
-      toValue: (text) => text == null ? null : double.tryParse(text),
+      toValue: (text) => text == null ? null : _toNum(text),
       initialValue: initialValue,
       decoration: decoration,
       textInputAction: textInputAction,
@@ -858,72 +931,275 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
+      minValue: minValue,
+      maxValue: maxValue,
+      toText: toText,
+      toFormattedText: toFormattedText,
+    );
+  }
+
+  /// Create a  field to accept [num] values.
+  /// The parameters are exactly similar to the parameters of
+  /// [TextFormField].
+  Field<Money> moneyField({
+    Key? key,
+    Currency? currency,
+    Money? initialValue,
+    InputDecoration? decoration = const InputDecoration(),
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextDirection? textDirection,
+    TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    bool autofocus = false,
+    bool readOnly = false,
+    bool? showCursor,
+    SmartDashesType? smartDashesType,
+    SmartQuotesType? smartQuotesType,
+    bool enableSuggestions = true,
+    MaxLengthEnforcement? maxLengthEnforcement,
+    int? maxLength,
+    bool signed = false,
+    ValueChanged<Money?>? onChanged,
+    GestureTapCallback? onTap,
+    TapRegionCallback? onTapOutside,
+    VoidCallback? onEditingComplete,
+    ValueChanged<Money?>? onFieldSubmitted,
+    FormFieldSetter<Money?>? onSaved,
+    FormFieldValidator<Money?>? validator,
+    bool? enabled,
+    double cursorWidth = 2.0,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    Color? cursorColor,
+    Brightness? keyboardAppearance,
+    EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+    bool? enableInteractiveSelection,
+    TextSelectionControls? selectionControls,
+    InputCounterWidgetBuilder? buildCounter,
+    ScrollPhysics? scrollPhysics,
+    Iterable<String>? autofillHints,
+    AutovalidateMode? autovalidateMode,
+    ScrollController? scrollController,
+    String? restorationId,
+    bool enableIMEPersonalizedLearning = true,
+    MouseCursor? mouseCursor,
+    EditableTextContextMenuBuilder? contextMenuBuilder =
+        _defaultContextMenuBuilder,
+    SpellCheckConfiguration? spellCheckConfiguration,
+    TextMagnifierConfiguration? magnifierConfiguration,
+    UndoHistoryController? undoController,
+    AppPrivateCommandCallback? onAppPrivateCommand,
+    bool? cursorOpacityAnimates,
+    BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+    BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ContentInsertionConfiguration? contentInsertionConfiguration,
+    Clip clipBehavior = Clip.hardEdge,
+    bool scribbleEnabled = true,
+    bool canRequestFocus = true,
+    num? minValue,
+    num? maxValue,
+  }) {
+    currency ??= initialValue == null ? Currency.local : initialValue.currency;
+    if (initialValue != null && currency != initialValue.currency) {
+      initialValue = initialValue.to(currency);
+    }
+    initialValue ??= Money.of(0, currency);
+    if (maxValue != null) {
+      String? v1(Money? m) => m == null || m.value > maxValue
+          ? 'Maximum is ${_strip(maxValue)}'
+          : null;
+      if (validator != null) {
+        var v2 = validator;
+        String? v3(Money? numValue) {
+          String? m = v1.call(numValue);
+          return m ?? v2.call(numValue);
+        }
+
+        validator = v3;
+      } else {
+        validator = v1;
+      }
+    }
+    if (minValue != null) {
+      String? v1(Money? m) => m == null || m.value < minValue
+          ? 'Minimum is ${_strip(minValue)}'
+          : null;
+      if (validator != null) {
+        var v2 = validator;
+        String? v3(Money? numValue) {
+          String? m = v1.call(numValue);
+          return m ?? v2.call(numValue);
+        }
+
+        validator = v3;
+      } else {
+        validator = v1;
+      }
+    }
+    String toText(Money? m) =>
+        m == null ? '' : m.value.toStringAsFixed(currency!.decimals);
+    String toFormattedText(Money? m) => m == null ? '' : m.toString();
+    Money? toValue(String? text) =>
+        text == null ? null : _toMoney(text, currency!);
+    _TextEditingController<Money> controller =
+        _TextEditingController(toText, toValue, initialValue, toFormattedText);
+    registerController(controller);
+    FocusNode focusNode = FocusNode();
+    registerFocusNode(focusNode);
+    String pattern = '^';
+    if (!signed) {
+      pattern += '-{0,1}';
+    }
+    pattern += r'\d*';
+    if (currency.decimals > 0) {
+      pattern += r'\.{0,1}\d{0,';
+      pattern += '${currency.decimals}}';
+    }
+    pattern += r'$';
+    RegExp regPattern = RegExp(pattern);
+    return _CustomTextField<Money>(
+      key: key,
+      decoration: decoration,
+      keyboardType: TextInputType.numberWithOptions(
+          signed: signed, decimal: currency.decimals > 0),
+      textInputAction: textInputAction,
+      style: style,
+      strutStyle: strutStyle,
+      textDirection: textDirection,
+      textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      showCursor: showCursor,
+      smartDashesType: smartDashesType,
+      smartQuotesType: smartQuotesType,
+      enableSuggestions: enableSuggestions,
+      maxLengthEnforcement: maxLengthEnforcement,
+      maxLength: maxLength,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      onEditingComplete: onEditingComplete,
+      onFieldSubmitted: onFieldSubmitted == null
+          ? null
+          : (s) => onFieldSubmitted.call(controller.fieldValue),
+      onSaved:
+          onSaved == null ? null : (s) => onSaved.call(controller.fieldValue),
+      validator: validator == null
+          ? null
+          : (s) => validator!.call(controller.fieldValue),
+      onChanged: onChanged == null
+          ? null
+          : (s) => onChanged.call(controller.fieldValue),
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) =>
+            regPattern.hasMatch(newValue.text) ? newValue : oldValue),
+      ],
+      enabled: enabled,
+      cursorWidth: cursorWidth,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorColor: cursorColor,
+      keyboardAppearance: keyboardAppearance,
+      scrollPadding: scrollPadding,
+      enableInteractiveSelection: enableInteractiveSelection,
+      selectionControls: selectionControls,
+      buildCounter: buildCounter,
+      scrollPhysics: scrollPhysics,
+      autofillHints: autofillHints,
+      autovalidateMode: autovalidateMode,
+      scrollController: scrollController,
+      restorationId: restorationId,
+      enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+      mouseCursor: mouseCursor,
+      contextMenuBuilder: contextMenuBuilder,
+      spellCheckConfiguration: spellCheckConfiguration,
+      magnifierConfiguration: magnifierConfiguration,
+      undoController: undoController,
+      onAppPrivateCommand: onAppPrivateCommand,
+      cursorOpacityAnimates: cursorOpacityAnimates,
+      selectionHeightStyle: selectionHeightStyle,
+      selectionWidthStyle: selectionWidthStyle,
+      dragStartBehavior: dragStartBehavior,
+      contentInsertionConfiguration: contentInsertionConfiguration,
+      clipBehavior: clipBehavior,
+      scribbleEnabled: scribbleEnabled,
+      canRequestFocus: canRequestFocus,
+      controller: controller,
+      focusNode: focusNode,
     );
   }
 
   /// Create a  field to accept [int] values.
   /// The parameters are exactly similar to the parameters of
   /// [TextFormField].
-  Field<int> intField(
-      {Key? key,
-      int? initialValue,
-      InputDecoration? decoration = const InputDecoration(),
-      TextInputAction? textInputAction,
-      TextStyle? style,
-      StrutStyle? strutStyle,
-      TextDirection? textDirection,
-      TextAlign textAlign = TextAlign.start,
-      TextAlignVertical? textAlignVertical,
-      bool autofocus = false,
-      bool readOnly = false,
-      bool? showCursor,
-      SmartDashesType? smartDashesType,
-      SmartQuotesType? smartQuotesType,
-      bool enableSuggestions = true,
-      MaxLengthEnforcement? maxLengthEnforcement,
-      int? maxLength,
-      bool signed = false,
-      ValueChanged<int?>? onChanged,
-      GestureTapCallback? onTap,
-      TapRegionCallback? onTapOutside,
-      VoidCallback? onEditingComplete,
-      ValueChanged<int?>? onFieldSubmitted,
-      FormFieldSetter<int?>? onSaved,
-      FormFieldValidator<int?>? validator,
-      bool? enabled,
-      double cursorWidth = 2.0,
-      double? cursorHeight,
-      Radius? cursorRadius,
-      Color? cursorColor,
-      Brightness? keyboardAppearance,
-      EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
-      bool? enableInteractiveSelection,
-      TextSelectionControls? selectionControls,
-      InputCounterWidgetBuilder? buildCounter,
-      ScrollPhysics? scrollPhysics,
-      Iterable<String>? autofillHints,
-      AutovalidateMode? autovalidateMode,
-      ScrollController? scrollController,
-      String? restorationId,
-      bool enableIMEPersonalizedLearning = true,
-      MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
-      SpellCheckConfiguration? spellCheckConfiguration,
-      TextMagnifierConfiguration? magnifierConfiguration,
-      UndoHistoryController? undoController,
-      AppPrivateCommandCallback? onAppPrivateCommand,
-      bool? cursorOpacityAnimates,
-      BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
-      BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
-      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-      ContentInsertionConfiguration? contentInsertionConfiguration,
-      Clip clipBehavior = Clip.hardEdge,
-      bool scribbleEnabled = true,
-      bool canRequestFocus = true}) {
+  Field<int> intField({
+    Key? key,
+    int? initialValue,
+    InputDecoration? decoration = const InputDecoration(),
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextDirection? textDirection,
+    TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    bool autofocus = false,
+    bool readOnly = false,
+    bool? showCursor,
+    SmartDashesType? smartDashesType,
+    SmartQuotesType? smartQuotesType,
+    bool enableSuggestions = true,
+    MaxLengthEnforcement? maxLengthEnforcement,
+    int? maxLength,
+    bool signed = false,
+    ValueChanged<int?>? onChanged,
+    GestureTapCallback? onTap,
+    TapRegionCallback? onTapOutside,
+    VoidCallback? onEditingComplete,
+    ValueChanged<int?>? onFieldSubmitted,
+    FormFieldSetter<int?>? onSaved,
+    FormFieldValidator<int?>? validator,
+    bool? enabled,
+    double cursorWidth = 2.0,
+    double? cursorHeight,
+    Radius? cursorRadius,
+    Color? cursorColor,
+    Brightness? keyboardAppearance,
+    EdgeInsets scrollPadding = const EdgeInsets.all(20.0),
+    bool? enableInteractiveSelection,
+    TextSelectionControls? selectionControls,
+    InputCounterWidgetBuilder? buildCounter,
+    ScrollPhysics? scrollPhysics,
+    Iterable<String>? autofillHints,
+    AutovalidateMode? autovalidateMode,
+    ScrollController? scrollController,
+    String? restorationId,
+    bool enableIMEPersonalizedLearning = true,
+    MouseCursor? mouseCursor,
+    EditableTextContextMenuBuilder? contextMenuBuilder =
+        _defaultContextMenuBuilder,
+    SpellCheckConfiguration? spellCheckConfiguration,
+    TextMagnifierConfiguration? magnifierConfiguration,
+    UndoHistoryController? undoController,
+    AppPrivateCommandCallback? onAppPrivateCommand,
+    bool? cursorOpacityAnimates,
+    BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+    BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
+    DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+    ContentInsertionConfiguration? contentInsertionConfiguration,
+    Clip clipBehavior = Clip.hardEdge,
+    bool scribbleEnabled = true,
+    bool canRequestFocus = true,
+    int? minValue,
+    int? maxValue,
+    String Function(int? numberValue)? toText,
+    String Function(int? numberValue)? toFormattedText,
+  }) {
     return _numField<int>(
       key: key,
-      toValue: (text) => text == null ? null : int.tryParse(text),
+      toValue: (text) => text == null ? null : _toInt(text),
       initialValue: initialValue,
       decoration: decoration,
       textInputAction: textInputAction,
@@ -979,6 +1255,10 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
+      minValue: minValue,
+      maxValue: maxValue,
+      toText: toText,
+      toFormattedText: toFormattedText,
     );
   }
 
@@ -1658,4 +1938,18 @@ abstract class DataScreen extends StatefulScreen {
       tristate: false,
     );
   }
+}
+
+_strip(num numberValue) {
+  String n = '$numberValue';
+  if (!n.contains('.') || !n.endsWith('0')) {
+    return n;
+  }
+  while (n.endsWith('0')) {
+    n = n.substring(0, n.length - 1);
+  }
+  if (n.endsWith('.')) {
+    n = n.substring(0, n.length - 1);
+  }
+  return n == '' ? '0' : n;
 }

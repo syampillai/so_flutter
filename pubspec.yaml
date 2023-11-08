@@ -1,6 +1,6 @@
 name: so_flutter
 description: A wrapper around Flutter's App concepts. This package provides is a small set of helper classes for quickly building Flutter applications based on Material design.
-version: 0.3.1
+version: 0.3.2
 homepage: https://github.com/syampillai/so_flutter
 
 environment:
@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  so_money: ^0.0.3
   intl: ^0.18.1
 
 dev_dependencies:

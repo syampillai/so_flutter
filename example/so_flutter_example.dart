@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:so_flutter/so_flutter.dart';
+import 'package:so_money/so_money.dart';
 
 /// Main
 main() {
@@ -154,14 +155,16 @@ class _DataEntry extends DataScreen {
     );
     // Create a double field.
     Field<double> numericField1 = doubleField(
-        initialValue: 123.45,
-        decoration: const InputDecoration(
-            labelText: 'Enter some decimal number that is less that 3000'),
-        validator: (v) {
-          return v == null || v >= 3000
-              ? 'Out of range! Should be less than 3000'
-              : null;
-        });
+      initialValue: 123.45,
+      decoration: const InputDecoration(
+          labelText: 'Enter some decimal number that is less that 30000'),
+      validator: (v) {
+        return v == null || v >= 30000
+            ? 'Out of range! Should be less than 30000'
+            : null;
+      },
+      minValue: 25,
+    );
     // Create a int field.
     Field<int> numericField2 = intField(
       initialValue: 273,
@@ -204,6 +207,10 @@ class _DataEntry extends DataScreen {
             dateField,
             numericField1,
             numericField2,
+            moneyField(
+                initialValue: Money(12345.23, 'USD'),
+                decoration:
+                    const InputDecoration(labelText: 'Amount')), // Money field
             comboField<String>(
                 items: selectionList,
                 initialValue: 'Three',
