@@ -986,7 +986,6 @@ abstract class DataScreen extends StatefulScreen {
   }) {
     return _MoneyWidget(
       key: key,
-      dataScreen: this,
       initialValue: initialValue,
       currency: currency,
       selectableCurrencies: selectableCurrencies,

@@ -46,3 +46,6 @@
 ## 0.3.3
 - Money field now supports selection of currencies.
 - New field added - `Roller`. Supports inline rolling of items.
+
+## 0.3.4
+- Unwanted parameter is removed from an internal class.

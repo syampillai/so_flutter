@@ -65,11 +65,9 @@ class _MoneyWidget extends StatefulWidget implements Field<Money> {
   final Clip clipBehavior;
   final bool scribbleEnabled;
   final bool canRequestFocus;
-  final DataScreen dataScreen;
 
   _MoneyWidget({
     super.key,
-    required this.dataScreen,
     Currency? currency,
     this.selectableCurrencies,
     Money? initialValue,
