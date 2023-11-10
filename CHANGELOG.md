@@ -42,3 +42,7 @@
 ## 0.3.2
 - New type of field added to handle monetary values. Check the new `DataScreen` method `moneyField(...)`.
 - More formatting support added for numeric fields.
+
+## 0.3.3
+- Money field now supports selection of currencies.
+- New field added - `Roller`. Supports inline rolling of items.

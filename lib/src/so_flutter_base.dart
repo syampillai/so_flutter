@@ -13,6 +13,7 @@ part 'data_screen.dart';
 part 'field.dart';
 part 'field_bool.dart';
 part 'field_combo.dart';
+part 'field_money.dart';
 
 /// Representation of an app.
 /// Just create an instance of this class or its descendants to create a running app quickly.

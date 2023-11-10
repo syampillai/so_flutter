@@ -46,7 +46,7 @@ abstract class DataScreen extends StatefulScreen {
   Field<String> textField(
       {Key? key,
       String? initialValue,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -94,8 +94,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -180,13 +179,6 @@ abstract class DataScreen extends StatefulScreen {
     );
   }
 
-  static Widget _defaultContextMenuBuilder(
-      BuildContext context, EditableTextState editableTextState) {
-    return AdaptiveTextSelectionToolbar.editableText(
-      editableTextState: editableTextState,
-    );
-  }
-
   /// Create a date field.
   /// Most of the parameters are exactly similar to the parameters of
   /// [TextFormField].
@@ -196,7 +188,7 @@ abstract class DataScreen extends StatefulScreen {
       intl.DateFormat? dateFormat,
       DateTime? minValue,
       DateTime? maxValue,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -238,8 +230,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -339,7 +330,7 @@ abstract class DataScreen extends StatefulScreen {
       {Key? key,
       required GestureTapCallback? onTap,
       required _TextReplacingController<T> controller,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -381,8 +372,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -494,7 +484,7 @@ abstract class DataScreen extends StatefulScreen {
     Key? key,
     required T? Function(String? text) toValue,
     T? initialValue,
-    InputDecoration? decoration = const InputDecoration(),
+    InputDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     StrutStyle? strutStyle,
@@ -535,8 +525,7 @@ abstract class DataScreen extends StatefulScreen {
     String? restorationId,
     bool enableIMEPersonalizedLearning = true,
     MouseCursor? mouseCursor,
-    EditableTextContextMenuBuilder? contextMenuBuilder =
-        _defaultContextMenuBuilder,
+    EditableTextContextMenuBuilder? contextMenuBuilder,
     SpellCheckConfiguration? spellCheckConfiguration,
     TextMagnifierConfiguration? magnifierConfiguration,
     UndoHistoryController? undoController,
@@ -549,7 +538,6 @@ abstract class DataScreen extends StatefulScreen {
     Clip clipBehavior = Clip.hardEdge,
     bool scribbleEnabled = true,
     bool canRequestFocus = true,
-    String Function(T? numberValue)? toText,
     String Function(T? numberValue)? toFormattedText,
     T? minValue,
     T? maxValue,
@@ -586,7 +574,7 @@ abstract class DataScreen extends StatefulScreen {
         validator = v1;
       }
     }
-    toText ??= (numberValue) =>
+    toText(T? numberValue) =>
         numberValue == null ? '' : numberValue.toStringAsFixed(decimals);
     _TextEditingController<T> controller =
         _TextEditingController(toText, toValue, initialValue, toFormattedText);
@@ -594,7 +582,7 @@ abstract class DataScreen extends StatefulScreen {
     FocusNode focusNode = FocusNode();
     registerFocusNode(focusNode);
     String pattern = '^';
-    if (!signed) {
+    if (signed) {
       pattern += '-{0,1}';
     }
     pattern += r'\d*';
@@ -682,7 +670,7 @@ abstract class DataScreen extends StatefulScreen {
   Field<double> doubleField({
     Key? key,
     double? initialValue,
-    InputDecoration? decoration = const InputDecoration(),
+    InputDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     StrutStyle? strutStyle,
@@ -723,8 +711,7 @@ abstract class DataScreen extends StatefulScreen {
     String? restorationId,
     bool enableIMEPersonalizedLearning = true,
     MouseCursor? mouseCursor,
-    EditableTextContextMenuBuilder? contextMenuBuilder =
-        _defaultContextMenuBuilder,
+    EditableTextContextMenuBuilder? contextMenuBuilder,
     SpellCheckConfiguration? spellCheckConfiguration,
     TextMagnifierConfiguration? magnifierConfiguration,
     UndoHistoryController? undoController,
@@ -739,7 +726,6 @@ abstract class DataScreen extends StatefulScreen {
     bool canRequestFocus = true,
     double? minValue,
     double? maxValue,
-    String Function(double? numberValue)? toText,
     String Function(double? numberValue)? toFormattedText,
   }) {
     return _numField<double>(
@@ -802,7 +788,6 @@ abstract class DataScreen extends StatefulScreen {
       canRequestFocus: canRequestFocus,
       minValue: minValue,
       maxValue: maxValue,
-      toText: toText,
       toFormattedText: toFormattedText,
     );
   }
@@ -813,7 +798,7 @@ abstract class DataScreen extends StatefulScreen {
   Field<num> numField({
     Key? key,
     double? initialValue,
-    InputDecoration? decoration = const InputDecoration(),
+    InputDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     StrutStyle? strutStyle,
@@ -854,8 +839,7 @@ abstract class DataScreen extends StatefulScreen {
     String? restorationId,
     bool enableIMEPersonalizedLearning = true,
     MouseCursor? mouseCursor,
-    EditableTextContextMenuBuilder? contextMenuBuilder =
-        _defaultContextMenuBuilder,
+    EditableTextContextMenuBuilder? contextMenuBuilder,
     SpellCheckConfiguration? spellCheckConfiguration,
     TextMagnifierConfiguration? magnifierConfiguration,
     UndoHistoryController? undoController,
@@ -870,7 +854,6 @@ abstract class DataScreen extends StatefulScreen {
     bool canRequestFocus = true,
     num? minValue,
     num? maxValue,
-    String Function(num? numberValue)? toText,
     String Function(num? numberValue)? toFormattedText,
   }) {
     return _numField<num>(
@@ -933,7 +916,6 @@ abstract class DataScreen extends StatefulScreen {
       canRequestFocus: canRequestFocus,
       minValue: minValue,
       maxValue: maxValue,
-      toText: toText,
       toFormattedText: toFormattedText,
     );
   }
@@ -944,8 +926,9 @@ abstract class DataScreen extends StatefulScreen {
   Field<Money> moneyField({
     Key? key,
     Currency? currency,
+    List<Currency>? selectableCurrencies,
     Money? initialValue,
-    InputDecoration? decoration = const InputDecoration(),
+    InputDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     StrutStyle? strutStyle,
@@ -985,8 +968,7 @@ abstract class DataScreen extends StatefulScreen {
     String? restorationId,
     bool enableIMEPersonalizedLearning = true,
     MouseCursor? mouseCursor,
-    EditableTextContextMenuBuilder? contextMenuBuilder =
-        _defaultContextMenuBuilder,
+    EditableTextContextMenuBuilder? contextMenuBuilder,
     SpellCheckConfiguration? spellCheckConfiguration,
     TextMagnifierConfiguration? magnifierConfiguration,
     UndoHistoryController? undoController,
@@ -1002,69 +984,13 @@ abstract class DataScreen extends StatefulScreen {
     num? minValue,
     num? maxValue,
   }) {
-    currency ??= initialValue == null ? Currency.local : initialValue.currency;
-    if (initialValue != null && currency != initialValue.currency) {
-      initialValue = initialValue.to(currency);
-    }
-    initialValue ??= Money.of(0, currency);
-    if (maxValue != null) {
-      String? v1(Money? m) => m == null || m.value > maxValue
-          ? 'Maximum is ${_strip(maxValue)}'
-          : null;
-      if (validator != null) {
-        var v2 = validator;
-        String? v3(Money? numValue) {
-          String? m = v1.call(numValue);
-          return m ?? v2.call(numValue);
-        }
-
-        validator = v3;
-      } else {
-        validator = v1;
-      }
-    }
-    if (minValue != null) {
-      String? v1(Money? m) => m == null || m.value < minValue
-          ? 'Minimum is ${_strip(minValue)}'
-          : null;
-      if (validator != null) {
-        var v2 = validator;
-        String? v3(Money? numValue) {
-          String? m = v1.call(numValue);
-          return m ?? v2.call(numValue);
-        }
-
-        validator = v3;
-      } else {
-        validator = v1;
-      }
-    }
-    String toText(Money? m) =>
-        m == null ? '' : m.value.toStringAsFixed(currency!.decimals);
-    String toFormattedText(Money? m) => m == null ? '' : m.toString();
-    Money? toValue(String? text) =>
-        text == null ? null : _toMoney(text, currency!);
-    _TextEditingController<Money> controller =
-        _TextEditingController(toText, toValue, initialValue, toFormattedText);
-    registerController(controller);
-    FocusNode focusNode = FocusNode();
-    registerFocusNode(focusNode);
-    String pattern = '^';
-    if (!signed) {
-      pattern += '-{0,1}';
-    }
-    pattern += r'\d*';
-    if (currency.decimals > 0) {
-      pattern += r'\.{0,1}\d{0,';
-      pattern += '${currency.decimals}}';
-    }
-    pattern += r'$';
-    RegExp regPattern = RegExp(pattern);
-    return _CustomTextField<Money>(
+    return _MoneyWidget(
       key: key,
+      dataScreen: this,
+      initialValue: initialValue,
+      currency: currency,
+      selectableCurrencies: selectableCurrencies,
       decoration: decoration,
-      keyboardType: TextInputType.numberWithOptions(
-          signed: signed, decimal: currency.decimals > 0),
       textInputAction: textInputAction,
       style: style,
       strutStyle: strutStyle,
@@ -1082,22 +1008,11 @@ abstract class DataScreen extends StatefulScreen {
       onTap: onTap,
       onTapOutside: onTapOutside,
       onEditingComplete: onEditingComplete,
-      onFieldSubmitted: onFieldSubmitted == null
-          ? null
-          : (s) => onFieldSubmitted.call(controller.fieldValue),
-      onSaved:
-          onSaved == null ? null : (s) => onSaved.call(controller.fieldValue),
-      validator: validator == null
-          ? null
-          : (s) => validator!.call(controller.fieldValue),
-      onChanged: onChanged == null
-          ? null
-          : (s) => onChanged.call(controller.fieldValue),
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldValue, newValue) =>
-            regPattern.hasMatch(newValue.text) ? newValue : oldValue),
-      ],
-      enabled: enabled,
+      onFieldSubmitted: onFieldSubmitted,
+      onSaved: onSaved,
+      validator: validator,
+      onChanged: onChanged,
+      enabled: enabled ?? true,
       cursorWidth: cursorWidth,
       cursorHeight: cursorHeight,
       cursorRadius: cursorRadius,
@@ -1127,8 +1042,9 @@ abstract class DataScreen extends StatefulScreen {
       clipBehavior: clipBehavior,
       scribbleEnabled: scribbleEnabled,
       canRequestFocus: canRequestFocus,
-      controller: controller,
-      focusNode: focusNode,
+      signed: signed,
+      minValue: minValue,
+      maxValue: maxValue,
     );
   }
 
@@ -1138,7 +1054,7 @@ abstract class DataScreen extends StatefulScreen {
   Field<int> intField({
     Key? key,
     int? initialValue,
-    InputDecoration? decoration = const InputDecoration(),
+    InputDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     StrutStyle? strutStyle,
@@ -1178,8 +1094,7 @@ abstract class DataScreen extends StatefulScreen {
     String? restorationId,
     bool enableIMEPersonalizedLearning = true,
     MouseCursor? mouseCursor,
-    EditableTextContextMenuBuilder? contextMenuBuilder =
-        _defaultContextMenuBuilder,
+    EditableTextContextMenuBuilder? contextMenuBuilder,
     SpellCheckConfiguration? spellCheckConfiguration,
     TextMagnifierConfiguration? magnifierConfiguration,
     UndoHistoryController? undoController,
@@ -1194,7 +1109,6 @@ abstract class DataScreen extends StatefulScreen {
     bool canRequestFocus = true,
     int? minValue,
     int? maxValue,
-    String Function(int? numberValue)? toText,
     String Function(int? numberValue)? toFormattedText,
   }) {
     return _numField<int>(
@@ -1257,7 +1171,6 @@ abstract class DataScreen extends StatefulScreen {
       canRequestFocus: canRequestFocus,
       minValue: minValue,
       maxValue: maxValue,
-      toText: toText,
       toFormattedText: toFormattedText,
     );
   }
@@ -1280,7 +1193,7 @@ abstract class DataScreen extends StatefulScreen {
               void Function() tapCallback)?
           itemWidgetCreator,
       Scaffold Function(List<Widget> children)? itemsWidgetCreator,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -1322,8 +1235,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -1433,7 +1345,7 @@ abstract class DataScreen extends StatefulScreen {
               void Function() tapCallback)?
           itemWidgetCreator,
       Scaffold Function(List<Widget> children)? itemsWidgetCreator,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -1475,8 +1387,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -1582,7 +1493,7 @@ abstract class DataScreen extends StatefulScreen {
       Widget Function(T item, bool selected, bool dsiabled)? itemWidgetCreator,
       double? comboWidth,
       double? comboHeight,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -1624,8 +1535,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -1724,7 +1634,7 @@ abstract class DataScreen extends StatefulScreen {
       Set<int>? disabledItems,
       double? comboWidth,
       double? comboHeight,
-      InputDecoration? decoration = const InputDecoration(),
+      InputDecoration? decoration,
       TextInputType? keyboardType,
       TextCapitalization textCapitalization = TextCapitalization.none,
       TextInputAction? textInputAction,
@@ -1766,8 +1676,7 @@ abstract class DataScreen extends StatefulScreen {
       String? restorationId,
       bool enableIMEPersonalizedLearning = true,
       MouseCursor? mouseCursor,
-      EditableTextContextMenuBuilder? contextMenuBuilder =
-          _defaultContextMenuBuilder,
+      EditableTextContextMenuBuilder? contextMenuBuilder,
       SpellCheckConfiguration? spellCheckConfiguration,
       TextMagnifierConfiguration? magnifierConfiguration,
       UndoHistoryController? undoController,
@@ -1855,27 +1764,30 @@ abstract class DataScreen extends StatefulScreen {
 
   /// Create a [Checkbox] based field to accept [bool] values.
   /// The parameters match the parameters of the [Checkbox].
-  Field<bool> checkboxField(
-      {Key? key,
-      bool? value = false,
-      bool tristate = false,
-      ValueChanged<bool?>? onChanged,
-      FormFieldSetter<bool?>? onSaved,
-      FormFieldValidator<bool?>? validator,
-      MouseCursor? mouseCursor,
-      Color? activeColor,
-      MaterialStateProperty<Color?>? fillColor,
-      Color? checkColor,
-      Color? focusColor,
-      Color? hoverColor,
-      MaterialStateProperty<Color?>? overlayColor,
-      double? splashRadius,
-      MaterialTapTargetSize? materialTapTargetSize,
-      VisualDensity? visualDensity,
-      OutlinedBorder? shape,
-      BorderSide? side,
-      String? semanticLabel,
-      InputDecoration? decoration}) {
+  Field<bool> checkboxField({
+    Key? key,
+    bool? value = false,
+    bool tristate = false,
+    ValueChanged<bool?>? onChanged,
+    FormFieldSetter<bool?>? onSaved,
+    FormFieldValidator<bool?>? validator,
+    MouseCursor? mouseCursor,
+    Color? activeColor,
+    MaterialStateProperty<Color?>? fillColor,
+    Color? checkColor,
+    Color? focusColor,
+    Color? hoverColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    double? splashRadius,
+    MaterialTapTargetSize? materialTapTargetSize,
+    VisualDensity? visualDensity,
+    OutlinedBorder? shape,
+    BorderSide? side,
+    String? semanticLabel,
+    InputDecoration? decoration,
+    bool readOnly = false,
+    bool enabled = true,
+  }) {
     return _BoolWidget(
       key: key,
       value: value,
@@ -1897,27 +1809,32 @@ abstract class DataScreen extends StatefulScreen {
       side: side,
       semanticLabel: semanticLabel,
       decoration: decoration,
+      readOnly: readOnly,
+      enabled: enabled,
     );
   }
 
   /// Create a [Switch] based field to accept [bool] values.
   /// The parameters match the parameters of the [Switch].
-  Field<bool> switchField(
-      {Key? key,
-      bool value = false,
-      ValueChanged<bool?>? onChanged,
-      FormFieldSetter<bool?>? onSaved,
-      FormFieldValidator<bool?>? validator,
-      MouseCursor? mouseCursor,
-      Color? activeColor,
-      MaterialStateProperty<Color?>? fillColor,
-      Color? checkColor,
-      Color? focusColor,
-      Color? hoverColor,
-      MaterialStateProperty<Color?>? overlayColor,
-      double? splashRadius,
-      MaterialTapTargetSize? materialTapTargetSize,
-      InputDecoration? decoration}) {
+  Field<bool> switchField({
+    Key? key,
+    bool value = false,
+    ValueChanged<bool?>? onChanged,
+    FormFieldSetter<bool?>? onSaved,
+    FormFieldValidator<bool?>? validator,
+    MouseCursor? mouseCursor,
+    Color? activeColor,
+    MaterialStateProperty<Color?>? fillColor,
+    Color? checkColor,
+    Color? focusColor,
+    Color? hoverColor,
+    MaterialStateProperty<Color?>? overlayColor,
+    double? splashRadius,
+    MaterialTapTargetSize? materialTapTargetSize,
+    InputDecoration? decoration,
+    bool readOnly = false,
+    bool enabled = true,
+  }) {
     return _BoolWidget(
       key: key,
       value: value,
@@ -1934,8 +1851,10 @@ abstract class DataScreen extends StatefulScreen {
       splashRadius: splashRadius,
       materialTapTargetSize: materialTapTargetSize,
       decoration: decoration,
-      checkBox: false,
+      checkbox: false,
       tristate: false,
+      readOnly: readOnly,
+      enabled: enabled,
     );
   }
 }

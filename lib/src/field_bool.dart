@@ -3,11 +3,12 @@ part of 'so_flutter_base.dart';
 class _BoxedBool {
   bool? value;
   _BoolState? state;
+  FocusNode? focusNode;
   _BoxedBool();
 }
 
 class _BoolWidget extends StatefulWidget implements Field<bool> {
-  final bool checkBox;
+  final bool checkbox;
   final _BoxedBool valueBox = _BoxedBool();
   final bool tristate;
   final ValueChanged<bool?>? onChanged;
@@ -29,45 +30,48 @@ class _BoolWidget extends StatefulWidget implements Field<bool> {
   final bool isError = false;
   final String? semanticLabel;
   final InputDecoration? decoration;
+  final bool enabled;
+  final bool readOnly;
 
-  _BoolWidget(
-      {super.key,
-      required value,
-      required this.tristate,
-      this.onChanged,
-      this.onSaved,
-      this.validator,
-      this.mouseCursor,
-      this.activeColor,
-      this.fillColor,
-      this.checkColor,
-      this.focusColor,
-      this.hoverColor,
-      this.overlayColor,
-      this.splashRadius,
-      this.materialTapTargetSize,
-      this.visualDensity,
-      this.shape,
-      this.side,
-      this.semanticLabel,
-      this.decoration,
-      this.checkBox = true}) {
+  _BoolWidget({
+    super.key,
+    required value,
+    required this.tristate,
+    this.onChanged,
+    this.onSaved,
+    this.validator,
+    this.mouseCursor,
+    this.activeColor,
+    this.fillColor,
+    this.checkColor,
+    this.focusColor,
+    this.hoverColor,
+    this.overlayColor,
+    this.splashRadius,
+    this.materialTapTargetSize,
+    this.visualDensity,
+    this.shape,
+    this.side,
+    this.semanticLabel,
+    this.decoration,
+    this.checkbox = true,
+    this.enabled = true,
+    this.readOnly = false,
+  }) {
     valueBox.value = value;
   }
 
   @override
   _BoolState createState() {
-    // ignore: no_logic_in_create_state
-    return _createState();
-  }
-
-  _BoolState _createState() {
-    valueBox.state = _BoolState(checkBox);
-    return valueBox.state!;
+    return _BoolState();
   }
 
   @override
-  focus() {}
+  focus() {
+    if (enabled) {
+      valueBox.focusNode?.requestFocus();
+    }
+  }
 
   @override
   set value(bool? value) {
@@ -83,9 +87,15 @@ class _BoolWidget extends StatefulWidget implements Field<bool> {
 }
 
 class _BoolState extends State<_BoolWidget> {
-  final bool checkBox;
+  final FocusNode focusNode = FocusNode();
 
-  _BoolState(this.checkBox);
+  _BoolState();
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
 
   void changed() {
     setState(() {});
@@ -93,14 +103,13 @@ class _BoolState extends State<_BoolWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget prefix = checkBox
+    widget.valueBox.state = this;
+    widget.valueBox.focusNode = focusNode;
+    Widget prefix = widget.checkbox
         ? Checkbox(
             value: widget.value,
             tristate: widget.tristate,
-            onChanged: (v) {
-              widget.onChanged?.call(v);
-              widget.value = v;
-            },
+            onChanged: onChanged,
             mouseCursor: widget.mouseCursor,
             activeColor: widget.activeColor,
             fillColor: widget.fillColor,
@@ -116,10 +125,7 @@ class _BoolState extends State<_BoolWidget> {
             semanticLabel: widget.semanticLabel)
         : Switch(
             value: widget.value!,
-            onChanged: (v) {
-              widget.onChanged?.call(v);
-              widget.value = v;
-            },
+            onChanged: onChanged,
             mouseCursor: widget.mouseCursor,
             activeColor: widget.activeColor,
             focusColor: widget.focusColor,
@@ -138,6 +144,7 @@ class _BoolState extends State<_BoolWidget> {
       initialValue: ' ',
       decoration: id,
       readOnly: true,
+      focusNode: focusNode,
       onSaved: widget.onSaved == null
           ? null
           : (v) {
@@ -149,5 +156,13 @@ class _BoolState extends State<_BoolWidget> {
               return widget.validator!.call(widget.valueBox.value);
             },
     );
+  }
+
+  onChanged(bool? v) {
+    if (!widget.enabled || widget.readOnly) {
+      return;
+    }
+    widget.onChanged?.call(v);
+    widget.value = v;
   }
 }

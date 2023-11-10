@@ -174,7 +174,7 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
       super.cursorRadius,
       super.cursorColor,
       super.keyboardAppearance,
-      super.scrollPadding,
+      super.scrollPadding = const EdgeInsets.all(20.0),
       super.enableInteractiveSelection,
       super.selectionControls,
       super.buildCounter,
@@ -185,7 +185,7 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
       super.restorationId,
       super.enableIMEPersonalizedLearning,
       super.mouseCursor,
-      super.contextMenuBuilder,
+      super.contextMenuBuilder = _defaultContextMenuBuilder,
       super.spellCheckConfiguration,
       super.magnifierConfiguration,
       super.undoController,
@@ -217,5 +217,96 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
     if (enabled) {
       _focusNode.requestFocus();
     }
+  }
+
+  static Widget _defaultContextMenuBuilder(
+      BuildContext context, EditableTextState editableTextState) {
+    return AdaptiveTextSelectionToolbar.editableText(
+      editableTextState: editableTextState,
+    );
+  }
+}
+
+class _ValueBox<T> {
+  T? value;
+  _RollerState<T>? state;
+}
+
+/// Roller that displays a clickable-text from a list of items. When clicked
+/// the value is rolled forward inline and eventually wrap around to the first
+/// one. If [toText] is specified, it will be used to convert the item into text
+/// to display, otherwise the toString() method of the item is used.
+class Roller<T> extends StatefulWidget implements Field<T> {
+  final List<T> items;
+  final _ValueBox<T> _value = _ValueBox();
+  final String Function(T item)? toText;
+  final ValueChanged<T?>? onChanged;
+
+  /// Constructor.
+  Roller(
+      {super.key,
+      required this.items,
+      T? initialSelection,
+      this.toText,
+      this.onChanged}) {
+    _value.value = initialSelection;
+  }
+
+  @override
+  State<Roller<T>> createState() {
+    return _RollerState();
+  }
+
+  @override
+  T? get value => _value.value;
+
+  @override
+  set value(T? value) {
+    if (value == _value.value) {
+      return;
+    }
+    if (_value.state == null) {
+      _value.value = value;
+      onChanged?.call(value);
+      return;
+    }
+    _value.state?.changeTo(value ?? items.first);
+  }
+
+  @override
+  focus() {}
+}
+
+class _RollerState<T> extends State<Roller<T>> {
+  changeTo(T item) {
+    setState(() {
+      widget._value.value = item;
+    });
+    FocusManager.instance.primaryFocus?.unfocus();
+    widget.onChanged?.call(item);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    widget._value.state = this;
+    if (widget.items.isEmpty) {
+      return const Text('None');
+    }
+    widget._value.value ??= widget.items.first;
+    T item = widget._value.value as T;
+    Text text = Text(
+        widget.toText == null ? item.toString() : widget.toText!.call(item));
+    int index = widget.items.indexOf(item) + 1;
+    if (index == widget.items.length) {
+      index = 0;
+    }
+    item = widget.items.elementAt(index);
+    return InkWell(
+      onTap: () => changeTo(item),
+      child: Tooltip(
+        message: 'Tap to change',
+        child: text,
+      ),
+    );
   }
 }
