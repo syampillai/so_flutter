@@ -49,3 +49,12 @@
 
 ## 0.3.4
 - Unwanted parameter is removed from an internal class. No public classes affected.
+
+## 0.3.5
+- Dart version restriction - upper limit increased.
+
+## 0.3.6
+- Dart version restriction - upper limit increased to 3.2.3
+
+## 0.3.7
+- Environment and dependencies updated to the latest available version.
