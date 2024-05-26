@@ -57,4 +57,8 @@
 - Dart version restriction - upper limit increased to 3.2.3
 
 ## 0.3.7
-- Environment and dependencies updated to the latest available version.
+- Environment and dependencies updated to the latest available versions.
+
+## 0.3.8
+- Environment and dependencies updated to the latest available versions.
+- Replaced deprecated 'MaterialStateProperty' with 'WidgetStateProperty' in data_screen.dart and field_bool.dart files.

@@ -16,11 +16,11 @@ class _BoolWidget extends StatefulWidget implements Field<bool> {
   final FormFieldValidator<bool?>? validator;
   final MouseCursor? mouseCursor;
   final Color? activeColor;
-  final MaterialStateProperty<Color?>? fillColor;
+  final WidgetStateProperty<Color?>? fillColor;
   final Color? checkColor;
   final Color? focusColor;
   final Color? hoverColor;
-  final MaterialStateProperty<Color?>? overlayColor;
+  final WidgetStateProperty<Color?>? overlayColor;
   final double? splashRadius;
   final MaterialTapTargetSize? materialTapTargetSize;
   final VisualDensity? visualDensity;
