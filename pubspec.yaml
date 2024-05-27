@@ -1,5 +1,5 @@
 name: so_flutter
-description: A wrapper around Flutter's App concepts. This package provides is a small set of helper classes for quickly building Flutter applications based on Material design.
+description: A wrapper around Flutter's App concepts. This package provides a small set of helper classes for quickly building Flutter applications based on Material design.
 version: 0.3.9
 homepage: https://github.com/syampillai/so_flutter
 
