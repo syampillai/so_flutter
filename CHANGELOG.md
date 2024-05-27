@@ -62,3 +62,6 @@
 ## 0.3.8
 - Environment and dependencies updated to the latest available versions.
 - Replaced deprecated 'MaterialStateProperty' with 'WidgetStateProperty' in data_screen.dart and field_bool.dart files.
+
+## 0.3.9
+- Environment and dependencies updated to the latest available versions.
