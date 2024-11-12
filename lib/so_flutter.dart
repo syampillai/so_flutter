@@ -1,5 +1,5 @@
 /// A wrapper around Flutter's app concepts.
 ///
-library so_flutter;
+library;
 
 export 'src/so_flutter_base.dart';
