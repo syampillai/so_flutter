@@ -130,7 +130,7 @@ class App extends State<_App> {
 
   /// Build the app's UI as a [MaterialApp] from the given parameters.
   /// Please make sure that the [MaterialApp] instance uses the given parameter
-  /// values for there respective parameters. Any additional parameters can
+  /// values for the respective parameters. Any additional parameters can
   /// be set as needed.
   @protected
   MaterialApp buildApp(
@@ -349,7 +349,7 @@ class _AppScreenStateless extends StatelessScreen {
 
 /// The screen interface.
 abstract class Screen {
-  /// It should have build method that returns a [Scaffold]. This will be
+  /// It should have a build method that returns a [Scaffold]. This will be
   /// shown on the screen.
   Scaffold build(BuildContext context);
 }
