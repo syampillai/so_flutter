@@ -71,3 +71,6 @@
 
 ## 0.3.11
 - Environment and dependencies updated to the latest available versions.
+
+## 0.3.12
+- Environment and dependencies updated to the latest available versions.

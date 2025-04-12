@@ -4,14 +4,14 @@ version: 0.3.11
 homepage: https://github.com/syampillai/so_flutter
 
 environment:
-  sdk: '>=3.0.0 <=3.7.0'
-  flutter: '>=3.29.1'
+  sdk: '>=3.0.0 <=3.7.2'
+  flutter: '>=3.29.2'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  so_money: ^0.0.8
+  so_money: ^0.0.9
   intl: ^0.20.2
 
 dev_dependencies:
