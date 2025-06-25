@@ -40,21 +40,21 @@
 - Minor bug fixes.
 
 ## 0.3.2
-- New type of field added to handle monetary values. Check the new `DataScreen` method `moneyField(...)`.
-- More formatting support added for numeric fields.
+- A new type of field added to handle monetary values. Check the new `DataScreen` method `moneyField(...)`.
+- More formatting support is added for numeric fields.
 
 ## 0.3.3
-- Money field now supports selection of currencies.
+- The money field now supports a selection of currencies.
 - New field added - `Roller`. Supports inline rolling of items.
 
 ## 0.3.4
-- Unwanted parameter is removed from an internal class. No public classes affected.
+- Unwanted parameter is removed from an internal class. No public classes are affected.
 
 ## 0.3.5
-- Dart version restriction - upper limit increased.
+- Dart version restriction, upper limit increased.
 
 ## 0.3.6
-- Dart version restriction - upper limit increased to 3.2.3
+- Dart version restriction, upper limit increased to 3.2.3
 
 ## 0.3.7
 - Environment and dependencies updated to the latest available versions.

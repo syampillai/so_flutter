@@ -9,7 +9,7 @@ abstract class Field<T> implements Widget {
   set value(T? value);
 
   /// Focus on this field.
-  focus();
+  void focus();
 }
 
 /// Wrap a [Field] with this class to handle non-null value for the field.
@@ -213,7 +213,7 @@ class _CustomTextField<T> extends TextFormField implements Field<T> {
   set value(T? v) => (controller as _TextController<T>).fieldValue = v;
 
   @override
-  focus() {
+  void focus() {
     if (enabled) {
       _focusNode.requestFocus();
     }
@@ -274,11 +274,11 @@ class Roller<T> extends StatefulWidget implements Field<T> {
   }
 
   @override
-  focus() {}
+  void focus() {}
 }
 
 class _RollerState<T> extends State<Roller<T>> {
-  changeTo(T item) {
+  void changeTo(T item) {
     setState(() {
       widget._value.value = item;
     });

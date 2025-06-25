@@ -1858,7 +1858,7 @@ abstract class DataScreen extends StatefulScreen {
   }
 }
 
-_strip(num numberValue) {
+String _strip(num numberValue) {
   String n = '$numberValue';
   if (!n.contains('.') || !n.endsWith('0')) {
     return n;

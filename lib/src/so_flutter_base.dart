@@ -77,7 +77,7 @@ class App extends State<_App> {
   }
 
   /// Run the app.
-  run() {
+  void run() {
     if (_app != null) {
       return;
     }
@@ -109,7 +109,7 @@ class App extends State<_App> {
     runApp(_app as Widget);
   }
 
-  _stateChanged(void Function() function) {
+  void _stateChanged(void Function() function) {
     if (_app == null) {
       return;
     }
@@ -149,7 +149,7 @@ class App extends State<_App> {
   }
 
   /// Jump to a specific [screen].
-  static goTo(Screen screen) {
+  static void goTo(Screen screen) {
     _wasRunning();
     if (!_instance!.mounted) {
       _instance!._stateChanged(() => goTo(screen));
@@ -160,7 +160,7 @@ class App extends State<_App> {
   }
 
   /// Jump to a specific [widget].
-  static goToWidget(Widget widget) {
+  static void goToWidget(Widget widget) {
     _wasRunning();
     if (!_instance!.mounted) {
       _instance!._stateChanged(() => goToWidget(widget));
@@ -176,14 +176,14 @@ class App extends State<_App> {
   }
 
   /// Go back to the home screen.
-  static goHome() {
+  static void goHome() {
     if (_wasRunning()) {
       _navigatorKey.currentState!.popUntil((route) => route.isFirst);
     }
   }
 
   /// Go back to the previous screen.
-  static goBack() {
+  static void goBack() {
     if (_wasRunning()) {
       _navigatorKey.currentState!.pop();
     }
@@ -213,7 +213,7 @@ class App extends State<_App> {
   }
 
   /// Show a snack-bar message, optionally with an [action].
-  static message(String content, [MessageAction? action]) {
+  static void message(String content, [MessageAction? action]) {
     _wasRunning();
     if (!_instance!.mounted) {
       _instance!._stateChanged(() => message(content, action));
@@ -233,7 +233,7 @@ class App extends State<_App> {
   }
 
   /// Show an alert, optionally with an [action].
-  static alert(String message, [String? title, List<MessageAction>? actions]) {
+  static void alert(String message, [String? title, List<MessageAction>? actions]) {
     _wasRunning();
     if (!_instance!.mounted) {
       _instance!._stateChanged(() => alert(message));
@@ -260,7 +260,7 @@ class App extends State<_App> {
   }
 
   /// Show an Ok/Cancel alert.
-  static okCancel(String message,
+  static void okCancel(String message,
       [String? title,
       String okLabel = 'Ok',
       void Function()? okAction,

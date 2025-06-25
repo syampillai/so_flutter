@@ -158,7 +158,7 @@ class _BoolState extends State<_BoolWidget> {
     );
   }
 
-  onChanged(bool? v) {
+  void onChanged(bool? v) {
     if (!widget.enabled || widget.readOnly) {
       return;
     }
