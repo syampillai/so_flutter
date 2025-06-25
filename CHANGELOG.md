@@ -77,3 +77,6 @@
 
 ## 0.3.13
 - Environment and dependencies updated to the latest available versions.
+
+## 0.3.14
+- Environment and dependencies updated to the latest available versions.
