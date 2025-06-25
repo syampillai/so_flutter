@@ -233,7 +233,8 @@ class App extends State<_App> {
   }
 
   /// Show an alert, optionally with an [action].
-  static void alert(String message, [String? title, List<MessageAction>? actions]) {
+  static void alert(String message,
+      [String? title, List<MessageAction>? actions]) {
     _wasRunning();
     if (!_instance!.mounted) {
       _instance!._stateChanged(() => alert(message));
